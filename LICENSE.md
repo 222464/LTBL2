@@ -22,3 +22,4 @@ freely, subject to the following restrictions:
 LTBL2 uses the following external libraries:
 
 SFML - source code is licensed under the zlib/png license.
+Fallahn's TMX Loader https://github.com/fallahn/sfml-tmxloader
