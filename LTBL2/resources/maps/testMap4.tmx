@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="ltbl" tilewidth="16" tileheight="16">
+  <image source="../../../../../../../Pictures/ltbllogo.png" width="1024" height="768"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJwL5WBgCB3Fo3gUj+JRPIpJxABRCZFR
+  </data>
+ </layer>
+ <objectgroup name="collision">
+  <object x="81.3333" y="158.667">
+   <polygon points="0,0 37.6667,-18 60.3333,-0.333333 59.3333,15.3333 42.3333,21 14,21"/>
+  </object>
+  <object x="45.6667" y="114.333">
+   <polygon points="0,0 43,47.6667 25.6667,55.3333 -19.3333,25.6667"/>
+  </object>
+  <object x="83" y="108.333">
+   <polygon points="0,0 9.33333,17.6667 25.3333,11.3333 21,2"/>
+  </object>
+  <object x="117" y="85">
+   <polygon points="0,0 0.666667,9.66667 15,6.66667"/>
+  </object>
+  <object x="41.6667" y="122.333">
+   <polygon points="0,0 50,-45 -2.66667,-57.3333"/>
+  </object>
+  <object x="56.3333" y="58">
+   <polygon points="0,0 -2.33333,20.6667 46.6667,-0.333333"/>
+  </object>
+  <object x="129" y="155.667">
+   <polygon points="0,0 13.3333,-33.6667 25.3333,4.66667"/>
+  </object>
+  <object x="47.6667" y="147.667">
+   <polygon points="0,0 -17.3333,85 18,90.3333 15.6667,5.66667"/>
+  </object>
+  <object x="56.3333" y="227.667">
+   <polygon points="0,0 31,1.33333 36.6667,-8.66667"/>
+  </object>
+  <object x="91" y="220">
+   <polygon points="0,0 6,-14 7,3.66667"/>
+  </object>
+  <object x="96" y="220.333">
+   <polygon points="0,0 22.6667,4.33333 18.3333,13.3333 -5.33333,10"/>
+  </object>
+  <object x="115" y="225.333">
+   <polygon points="0,0 9.66667,-8 20.6667,2"/>
+  </object>
+  <object x="116" y="178">
+   <polygon points="0,0 -2.66667,15.3333 -8.66667,-0.666667"/>
+  </object>
+  <object x="95.3333" y="47">
+   <polygon points="0,0 8.33333,18 86,3.66667"/>
+  </object>
+  <object x="165.667" y="48">
+   <polygon points="0,0 17,67 32.6667,66.6667 24.3333,1"/>
+  </object>
+  <object x="184" y="109.333">
+   <polygon points="0,0 -6.33333,27.6667 4.66667,22.6667 14,3.33333"/>
+  </object>
+  <object x="189" y="123.333">
+   <polygon points="0,0 -4,52.6667 13,67.3333 10,-6"/>
+  </object>
+  <object x="126" y="229.333">
+   <polygon points="0,0 33.3333,-19 48.3333,-22 62.6667,-21.3333 67,-16.6667 69,-8 62,-0.333333"/>
+  </object>
+  <object x="187.667" y="224.333">
+   <polygon points="0,0 23,-0.666667 23.3333,4.66667"/>
+  </object>
+  <object x="211.333" y="227.333">
+   <polygon points="0,0 -7.33333,-42.3333 -15,-41.6667"/>
+  </object>
+ </objectgroup>
+</map>

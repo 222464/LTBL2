@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="28" height="18" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="phase-2" tilewidth="16" tileheight="16">
+  <image source="../../../../../../phase-2.png" width="800" height="448"/>
+ </tileset>
+ <layer name="Tile Layer 3" width="28" height="18">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjALaAwfGgXbBKBhMYDQ90B4AAELFAIM=
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="28" height="18">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjFSwlYmBoZoZk4bh7Uz0dY80MypfFmi/HB3dQG/7/IF2BdDRvkagXU1AvIUJEtcgTO84HgX0AwAdFwp4
+  </data>
+ </layer>
+ <layer name="Tile Layer 1" width="28" height="18">
+  <data encoding="base64" compression="zlib">
+   eJztlFEKwjAMQNNdwSPJ5vQ0wnDMSsXb+OEEeyRvYoIthqytnWyCYODRQMJe05YB/OOXY4mUSIXUiZ5YbWzskBbpEJ3oidXGxhm5OPpET6z2ie/0ZR+5bjP41siKUcO853lA9gwtfHI/Ie4q33dFGvWiFz56h/ROW7HyfFHkO8lnYOgzzsfdEuvWssh38vnIIeeTPgND71blO2PnSd8geP6ODn1V8fw3Sfxdbyb0eae/3xCa+SzEfSbgtRDOmwT9xPN531G8w5TvARUrdm4=
+  </data>
+ </layer>
+ <objectgroup name="props">
+  <object gid="43" x="80.7917" y="69.25"/>
+  <object gid="3" x="109.333" y="51"/>
+  <object gid="43" x="64.875" y="69.25"/>
+  <object gid="42" x="51" y="69.125"/>
+  <object gid="45" x="141.25" y="69.125"/>
+  <object gid="43" x="96.6667" y="69.25"/>
+  <object gid="43" x="112.667" y="69.25"/>
+  <object gid="43" x="128.542" y="69.125"/>
+ </objectgroup>
+ <objectgroup name="collision">
+  <object x="0" y="64" width="64" height="224"/>
+  <object x="64" y="160" width="128" height="128"/>
+  <object x="256" y="224" width="192" height="64"/>
+  <object x="368" y="128" width="80" height="96"/>
+  <object x="192" y="160">
+   <polygon points="0,0 64,64 64,128 0,128"/>
+  </object>
+  <object x="256" y="224">
+   <polygon points="0,0 9.09091,-7.45455 27.4545,-11.0909 32,0"/>
+  </object>
+  <object x="268.273" y="208.909">
+   <polygon points="-0.0909091,2.58893 -0.0909091,-48.8182 15.5455,-48.9091 15.6364,-14.1818"/>
+  </object>
+  <object x="283.818" y="192.909">
+   <polygon points="0,-0.391304 3.18182,3.81818 2.90909,10.5455 -15.6364,16.0909"/>
+  </object>
+  <object x="144" y="64" width="32" height="96"/>
+  <object x="65.125" y="62.5" width="2.4375" height="6.5"/>
+  <object x="69.125" y="62.625" width="2.5" height="6.375"/>
+  <object x="73.0625" y="62.5" width="2.5625" height="6.5"/>
+  <object x="77.125" y="62.625" width="2.4375" height="6.5"/>
+  <object x="85.0625" y="62.625" width="2.5625" height="6.5"/>
+  <object x="81.125" y="62.75" width="2.5" height="6.375"/>
+  <object x="89.0625" y="62.5" width="2.4375" height="6.5"/>
+  <object x="97" y="62.5" width="2.5625" height="6.5"/>
+  <object x="93.0625" y="62.625" width="2.5" height="6.375"/>
+  <object x="100.938" y="62.5625" width="2.4375" height="6.5"/>
+  <object x="108.875" y="62.5625" width="2.5625" height="6.5"/>
+  <object x="104.938" y="62.6875" width="2.5" height="6.375"/>
+  <object x="112.938" y="62.5" width="2.4375" height="6.5"/>
+  <object x="120.875" y="62.5" width="2.5625" height="6.5"/>
+  <object x="116.938" y="62.625" width="2.5" height="6.375"/>
+  <object x="125" y="62.5" width="2.4375" height="6.5"/>
+  <object x="132.938" y="62.5" width="2.5625" height="6.5"/>
+  <object x="129" y="62.625" width="2.5" height="6.375"/>
+  <object x="140.688" y="62.375" width="2.5625" height="6.5"/>
+  <object x="136.75" y="62.5" width="2.5" height="6.375"/>
+  <object x="268.625" y="208.438">
+   <polygon points="0,0 -3.5,8.5625 15.125,5.0625 18.1875,-5.75"/>
+  </object>
+ </objectgroup>
+</map>
