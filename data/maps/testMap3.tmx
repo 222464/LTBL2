@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="40" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="ltbl" tilewidth="16" tileheight="16">
+  <image source="../../../../../../tilesetltbl.png" width="1024" height="1024"/>
+ </tileset>
+ <layer name="Tile Layer 0" width="60" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztzrENADAIwDAk+P/m9gPYGLCl7IkAAAAA6OWvtieAk2oQAAAAwJYHEnEALA==
+  </data>
+ </layer>
+ <layer name="Tile Layer 1" width="60" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztkVsOgjAQRUs1ui9eCxNwYbzW5eXDREyHFmyGJt6TnA8C0/QwxhBCCCGEEEIIIXEpMmNKwSo7+3bxadDUCnYJ994PfNejZ4Cj4ATnbN/5sSg9VrAWZnNYOGasNeYCrxve7HpGixG2gsu7zjPfOOZytBRLz4a1Xc9oIbW+PdL7QEvj6X0m0OvadUjv91yPlgGOghOcE+h1OXnmh4AzpP/5+axF6F33tuxVi1i9v/4HLWLv6d/3m2JvrJ2GnuP6Touz96rdSwghhBBCyFFe1/u2OQ==
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="60" height="40">
+  <data encoding="base64" compression="zlib">
+   eJzt0TkOgCAURVFKbXRPTokTm1J35sJ8hQWF0gEJ3JPciub9YAwAAAAAAChRpeqft0a1EbfEMr8talWb2pVNOQoAHJ3q1eBpVFOqgQEc6vR0pZsWxNe9t8n/XvfG0v6XewEAAID8PYdiHN0=
+  </data>
+ </layer>
+ <layer name="Tile Layer 3" width="60" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztzrEJAEAIwEDBd/+VtfwNBLmD9IkAAAAALsvpfdXuDgAAAADAKQ3TLwAV
+  </data>
+ </layer>
+ <objectgroup name="collision">
+  <object x="16" y="288" width="128" height="176"/>
+  <object x="144" y="368" width="144" height="96"/>
+  <object x="288" y="288" width="272" height="176"/>
+  <object x="368" y="240" width="2" height="31.875"/>
+  <object x="369.043" y="240" width="126.927" height="1.94429"/>
+  <object x="494.062" y="241.5" width="1.9375" height="30.5"/>
+  <object x="161" y="288.031" width="3.96875" height="1.96875"/>
+  <object x="165.984" y="287.984" width="3.96875" height="1.96875"/>
+  <object x="171.016" y="288.016" width="3.96875" height="1.96875"/>
+  <object x="186.992" y="287.993" width="3.96875" height="1.96875"/>
+  <object x="176.976" y="288.008" width="3.96875" height="1.96875"/>
+  <object x="181.96" y="287.961" width="3.96875" height="1.96875"/>
+  <object x="202.079" y="287.985" width="3.96875" height="1.96875"/>
+  <object x="211.936" y="287.93" width="3.96875" height="1.96875"/>
+  <object x="216.968" y="287.962" width="3.96875" height="1.96875"/>
+  <object x="192.063" y="288" width="3.96875" height="1.96875"/>
+  <object x="206.952" y="287.977" width="3.96875" height="1.96875"/>
+  <object x="197.047" y="287.953" width="3.96875" height="1.96875"/>
+  <object x="143.609" y="288" width="17.3043" height="8.04348"/>
+  <object x="143.565" y="295.739" width="15.3478" height="4.26087"/>
+  <object x="143.522" y="299.087" width="14.4348" height="5.86957"/>
+  <object x="143.261" y="304.435" width="13.6957" height="63.9328"/>
+  <object x="222.018" y="288.023" width="3.96875" height="1.96875"/>
+  <object x="232.034" y="288.008" width="3.96875" height="1.96875"/>
+  <object x="227.002" y="287.976" width="3.96875" height="1.96875"/>
+  <object x="237.051" y="287.952" width="3.96875" height="1.96875"/>
+  <object x="247.067" y="287.937" width="3.96875" height="1.96875"/>
+  <object x="242.035" y="287.905" width="3.96875" height="1.96875"/>
+  <object x="252.051" y="287.996" width="3.96875" height="1.96875"/>
+  <object x="262.067" y="287.981" width="3.96875" height="1.96875"/>
+  <object x="257.035" y="287.949" width="3.96875" height="1.96875"/>
+  <object x="267.016" y="287.972" width="3.96875" height="1.96875"/>
+  <object x="271" y="287.875" width="17.375" height="8"/>
+  <object x="273" y="295.375" width="15.625" height="4.625"/>
+  <object x="274" y="299.125" width="14.625" height="5.625"/>
+  <object x="275" y="304.125" width="13.5" height="64.5"/>
+ </objectgroup>
+</map>
