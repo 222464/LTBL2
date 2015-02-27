@@ -11,7 +11,7 @@ set(SFML_STATIC_LIBS FALSE CACHE BOOL "Choose whether SFML is linked statically 
 set(LTBL2_STATIC_STD_LIBS FALSE CACHE BOOL "Use statically linked standard/runtime libraries? This option must match the one used for SFML.")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/cmake_modules" ${CMAKE_MODULE_PATH})
 
-# Compile LTBL2 with C++11 features
+# Compile LTBL2 with C++14 features
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 endif()
