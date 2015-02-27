@@ -1,0 +1,2 @@
+# Ignore the following folders when committing to the repo
+build/
