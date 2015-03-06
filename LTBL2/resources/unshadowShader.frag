@@ -13,5 +13,5 @@ void main() {
 	
 	float shadow = (lightBrightness - darkBrightness) * penumbra + darkBrightness;
 
-    gl_FragColor = vec4(emission, 1.0 - shadow);
+    gl_FragColor = vec4(emission * (1.0 - shadow), 1.0 - shadow);
 }

@@ -52,7 +52,7 @@ int main() {
 
 	tmx::MapLoader ml("resources/maps");
 
-	ml.Load("testMap5.tmx");
+	ml.Load("spookyMap1.tmx");
 
 	bool quit = false;
 
@@ -126,7 +126,7 @@ int main() {
 			ls.addShape(lightShape);
 		}
 	}
-	else if (ml.GetLayers()[l].name == "pointlights") {
+	else if (ml.GetLayers()[l].name == "lights") {
 		for (int i = 0; i < ml.GetLayers()[l].objects.size(); i++) {
 			tmx::MapObject &object = ml.GetLayers()[l].objects[i];
 
@@ -154,7 +154,7 @@ int main() {
 
 	view.setCenter(sf::Vector2f(ml.GetMapSize().x * 0.5f, ml.GetMapSize().y * 0.5f));
 
-	view.zoom(2.0f);
+	view.zoom(0.125f);
 
 	do {
 		clock.restart();

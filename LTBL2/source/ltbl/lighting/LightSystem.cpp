@@ -12,6 +12,9 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 	std::vector<bool> bothEdgesBoundaryWindings;
 	bothEdgesBoundaryWindings.reserve(2);
 
+	std::vector<bool> oneEdgeBoundaryWindings;
+	oneEdgeBoundaryWindings.reserve(2);
+
 	// Calculate front and back facing sides
 	std::vector<bool> facingFrontBothEdges;
 	facingFrontBothEdges.reserve(numPoints);
@@ -82,12 +85,37 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 
 	// Go through front/back facing list. Where the facing direction switches, there is a boundary
 	for (int i = 1; i < numPoints; i++)
-	if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1])
+	if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1]) {
 		outerBoundaryIndices.push_back(i);
+		oneEdgeBoundaryWindings.push_back(facingFrontOneEdge[i]);
+	}
 
 	// Check looping indices separately
-	if (facingFrontOneEdge[0] != facingFrontOneEdge[numPoints - 1])
+	if (facingFrontOneEdge[0] != facingFrontOneEdge[numPoints - 1]) {
 		outerBoundaryIndices.push_back(0);
+		oneEdgeBoundaryWindings.push_back(facingFrontOneEdge[0]);
+	}
+
+	// Compute outer boundary vectors
+	for (int bi = 0; bi < outerBoundaryIndices.size(); bi++) {
+		int penumbraIndex = outerBoundaryIndices[bi];
+		bool winding = oneEdgeBoundaryWindings[bi];
+
+		sf::Vector2f point = shape.getTransform().transformPoint(shape.getPoint(penumbraIndex));
+
+		sf::Vector2f sourceToPoint = point - sourceCenter;
+
+		sf::Vector2f perpendicularOffset(-sourceToPoint.y, sourceToPoint.x);
+
+		perpendicularOffset = vectorNormalize(perpendicularOffset);
+		perpendicularOffset *= sourceRadius;
+
+		sf::Vector2f firstEdgeRay = point - (sourceCenter + perpendicularOffset);
+		sf::Vector2f secondEdgeRay = point - (sourceCenter - perpendicularOffset);
+
+		// Add boundary vector
+		outerBoundaryVectors.push_back(winding ? firstEdgeRay : secondEdgeRay);
+	}
 
 	for (int bi = 0; bi < innerBoundaryIndices.size(); bi++) {
 		int penumbraIndex = innerBoundaryIndices[bi];
@@ -109,7 +137,8 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 		innerBoundaryVectors.push_back(winding ? secondEdgeRay : firstEdgeRay);
 		sf::Vector2f outerBoundaryVector = winding ? firstEdgeRay : secondEdgeRay;
 
-		outerBoundaryVectors.push_back(outerBoundaryVector);
+		if (innerBoundaryIndices.size() == 1)
+			innerBoundaryVectors.push_back(outerBoundaryVector);
 
 		// Add penumbras
 		bool hasPrevPenumbra = false;
@@ -198,6 +227,11 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 					secondEdgeRay = point - (sourceCenter - perpendicularOffset);
 
 					outerBoundaryVector = secondEdgeRay;
+
+					if (!outerBoundaryVectors.empty()) {
+						outerBoundaryVectors[0] = penumbra._darkEdge;
+						outerBoundaryIndices[0] = penumbraIndex;
+					}
 				}
 				else {
 					penumbra._darkBrightness = 0.0f;
@@ -208,6 +242,11 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 					}
 
 					hasPrevPenumbra = false;
+
+					if (!outerBoundaryVectors.empty()) {
+						outerBoundaryVectors[0] = penumbra._darkEdge;
+						outerBoundaryIndices[0] = penumbraIndex;
+					}
 
 					penumbraIndex = -1;
 				}
@@ -257,6 +296,11 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 					secondEdgeRay = point - (sourceCenter - perpendicularOffset);
 
 					outerBoundaryVector = firstEdgeRay;
+
+					if (!outerBoundaryVectors.empty()) {
+						outerBoundaryVectors[1] = penumbra._darkEdge;
+						outerBoundaryIndices[1] = penumbraIndex;
+					}
 				}
 				else {
 					penumbra._darkBrightness = 0.0f;
@@ -267,6 +311,11 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 					}
 
 					hasPrevPenumbra = false;
+
+					if (!outerBoundaryVectors.empty()) {
+						outerBoundaryVectors[1] = penumbra._darkEdge;
+						outerBoundaryIndices[1] = penumbraIndex;
+					}
 
 					penumbraIndex = -1;
 				}
@@ -556,7 +605,7 @@ void LightSystem::create(const sf::FloatRect &rootRegion, const sf::Vector2u &im
 	_compositionTexture.create(imageSize.x, imageSize.y);
 
 	sf::Vector2f targetSizeInv = sf::Vector2f(1.0f / imageSize.x, 1.0f / imageSize.y);
-
+	
 	unshadowShader.setParameter("emissionTexture", _emissionTempTexture.getTexture());
 	unshadowShader.setParameter("penumbraTexture", penumbraTexture);
 	unshadowShader.setParameter("targetSizeInv", targetSizeInv);
@@ -598,7 +647,7 @@ void LightSystem::render(const sf::View &view, sf::Shader &unshadowShader, sf::S
 		sprite.setTexture(_lightTempTexture.getTexture());
 
 		sf::RenderStates compoRenderStates;
-		compoRenderStates.blendMode = sf::BlendAdd;
+		compoRenderStates.blendMode = sf::BlendAdd;// sf::BlendMode(sf::BlendMode::One, sf::BlendMode::One, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
 
 		_compositionTexture.draw(sprite, compoRenderStates);
 	}

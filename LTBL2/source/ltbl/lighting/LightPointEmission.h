@@ -14,7 +14,7 @@ namespace ltbl {
 		float _shadowOverExtendMultiplier;
 
 		LightPointEmission()
-			: _localCastCenter(0.0f, 0.0f), _sourceRadius(64.0f), _shadowOverExtendMultiplier(1.4f)
+			: _localCastCenter(0.0f, 0.0f), _sourceRadius(8.0f), _shadowOverExtendMultiplier(1.4f)
 		{}
 
 		sf::FloatRect getAABB() const {
