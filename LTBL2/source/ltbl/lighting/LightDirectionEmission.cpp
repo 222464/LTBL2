@@ -8,53 +8,35 @@
 
 using namespace ltbl;
 
-void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lightTempTexture, sf::RenderTexture &emissionTempTexture, const std::vector<QuadtreeOccupant*> &shapes, sf::Shader &unshadowShader, sf::Shader &lightOverShapeShader, float shadowExtension) {
-	LightSystem::clear(emissionTempTexture, sf::Color::Black);
-
-	emissionTempTexture.setView(emissionTempTexture.getDefaultView());
-
-	emissionTempTexture.draw(_emissionSprite);
-
-	emissionTempTexture.setView(view);
-
-	emissionTempTexture.display();
-
-	LightSystem::clear(lightTempTexture, sf::Color::Black);
-
-	lightTempTexture.setView(lightTempTexture.getDefaultView());
-
-	lightTempTexture.draw(_emissionSprite);
-
+void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lightTempTexture, sf::RenderTexture &antumbraTempTexture, const std::vector<QuadtreeOccupant*> &shapes, sf::Shader &unshadowShader, float shadowExtension) {
 	lightTempTexture.setView(view);
 
-	std::vector<LightSystem::Penumbra> penumbras;
-
-	struct OuterEdges {
-		std::vector<int> _outerBoundaryIndices;
-		std::vector<sf::Vector2f> _outerBoundaryVectors;
-	};
-
-	std::vector<OuterEdges> outerEdges(shapes.size());
+	LightSystem::clear(lightTempTexture, sf::Color::White);
 
 	// Mask off light shape (over-masking - mask too much, reveal penumbra/antumbra afterwards)
 	for (int i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
-		// Get boundaries
-		std::vector<int> innerBoundaryIndices;
-		std::vector<sf::Vector2f> innerBoundaryVectors;
+		// Render shape
+		pLightShape->_shape.setFillColor(sf::Color::Black);
 
-		LightSystem::getPenumbrasDirection(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerEdges[i]._outerBoundaryIndices, outerEdges[i]._outerBoundaryVectors, pLightShape->_shape, _castDirection, _sourceRadius, _sourceDistance);
+		lightTempTexture.setView(view);
+
+		lightTempTexture.draw(pLightShape->_shape);
+
+		// Get boundaries
+		std::vector<LightSystem::Penumbra> penumbras;
+		std::vector<int> innerBoundaryIndices;
+		std::vector<int> outerBoundaryIndices;
+		std::vector<sf::Vector2f> innerBoundaryVectors;
+		std::vector<sf::Vector2f> outerBoundaryVectors;
+
+		LightSystem::getPenumbrasDirection(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerBoundaryIndices, outerBoundaryVectors, pLightShape->_shape, _castDirection, _sourceRadius, _sourceDistance);
 
 		if (innerBoundaryIndices.size() != 2)
 			continue;
 
-		// Render shape
-		if (!pLightShape->_renderLightOverShape) {
-			pLightShape->_shape.setFillColor(sf::Color::Black);
-
-			lightTempTexture.draw(pLightShape->_shape);
-		}
+		sf::ConvexShape maskShape;
 
 		float maxDist = 0.0f;
 
@@ -62,11 +44,6 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 			maxDist = std::max(maxDist, vectorMagnitude(view.getCenter() - pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(j))));
 
 		float totalShadowExtension = shadowExtension + maxDist;
-
-		sf::RenderStates maskRenderStates;
-		maskRenderStates.blendMode = sf::BlendNone;
-
-		sf::ConvexShape maskShape;
 
 		maskShape.setPointCount(4);
 
@@ -77,7 +54,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 		maskShape.setFillColor(sf::Color::Black);
 
-		lightTempTexture.draw(maskShape, maskRenderStates);
+		lightTempTexture.draw(maskShape);
 
 		sf::VertexArray vertexArray;
 
@@ -85,11 +62,11 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 		vertexArray.resize(3);
 
-		sf::RenderStates penumbraRenderStates;
-		penumbraRenderStates.blendMode = sf::BlendAlpha;
-		penumbraRenderStates.shader = &unshadowShader;
-
 		{
+			sf::RenderStates states;
+			states.blendMode = sf::BlendAdd;
+			states.shader = &unshadowShader;
+
 			// Unmask with penumbras
 			for (int j = 0; j < penumbras.size(); j++) {
 				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
@@ -103,60 +80,8 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 				vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
 				vertexArray[2].texCoords = sf::Vector2f(0.0f, 0.0f);
 
-				lightTempTexture.draw(vertexArray, penumbraRenderStates);
+				lightTempTexture.draw(vertexArray, states);
 			}
-		}
-	}
-
-	for (int i = 0; i < shapes.size(); i++) {
-		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
-
-		sf::RenderStates maskRenderStates;
-		maskRenderStates.blendMode = sf::BlendNone;
-
-		if (outerEdges[i]._outerBoundaryIndices.size() != 2)
-			continue;
-
-		sf::Vector2f as = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(outerEdges[i]._outerBoundaryIndices[0]));
-		sf::Vector2f bs = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(outerEdges[i]._outerBoundaryIndices[1]));
-		sf::Vector2f ad = outerEdges[i]._outerBoundaryVectors[0];
-		sf::Vector2f bd = outerEdges[i]._outerBoundaryVectors[1];
-
-		sf::Vector2f intersection;
-
-		if (rayIntersect(as, ad, bs, bd, intersection)) {
-			sf::ConvexShape maskShape;
-
-			maskShape.setPointCount(3);
-
-			maskShape.setPoint(0, as);
-			maskShape.setPoint(1, bs);
-			maskShape.setPoint(2, intersection);
-
-			maskShape.setFillColor(sf::Color::Black);
-
-			lightTempTexture.draw(maskShape);
-		}
-		else {
-			float maxDist = 0.0f;
-
-			for (int j = 0; j < pLightShape->_shape.getPointCount(); j++)
-				maxDist = std::max(maxDist, vectorMagnitude(view.getCenter() - pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(j))));
-
-			float totalShadowExtension = shadowExtension + maxDist;
-
-			sf::ConvexShape maskShape;
-
-			maskShape.setPointCount(4);
-
-			maskShape.setPoint(0, as);
-			maskShape.setPoint(1, bs);
-			maskShape.setPoint(2, bs + vectorNormalize(bd) * shadowExtension);
-			maskShape.setPoint(3, as + vectorNormalize(ad) * shadowExtension);
-
-			maskShape.setFillColor(sf::Color::Black);
-
-			lightTempTexture.draw(maskShape);
 		}
 	}
 
@@ -166,14 +91,17 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 		if (pLightShape->_renderLightOverShape) {
 			pLightShape->_shape.setFillColor(sf::Color::White);
 
-			lightTempTexture.draw(pLightShape->_shape, &lightOverShapeShader);
-		}
-		else {
-			pLightShape->_shape.setFillColor(sf::Color::Black);
-
 			lightTempTexture.draw(pLightShape->_shape);
 		}
 	}
+
+	// Multiplicatively blend the light over the shadows
+	sf::RenderStates lightRenderStates;
+	lightRenderStates.blendMode = sf::BlendMultiply;
+
+	lightTempTexture.setView(lightTempTexture.getDefaultView());
+
+	lightTempTexture.draw(_emissionSprite, lightRenderStates);
 
 	lightTempTexture.display();
 }

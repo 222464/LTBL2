@@ -72,10 +72,10 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 
 	// Go through front/back facing list. Where the facing direction switches, there is a boundary
 	for (int i = 1; i < numPoints; i++)
-	if (facingFrontBothEdges[i] != facingFrontBothEdges[i - 1]) {
-		innerBoundaryIndices.push_back(i);
-		bothEdgesBoundaryWindings.push_back(facingFrontBothEdges[i]);
-	}
+		if (facingFrontBothEdges[i] != facingFrontBothEdges[i - 1]) {
+			innerBoundaryIndices.push_back(i);
+			bothEdgesBoundaryWindings.push_back(facingFrontBothEdges[i]);
+		}
 
 	// Check looping indices separately
 	if (facingFrontBothEdges[0] != facingFrontBothEdges[numPoints - 1]) {
@@ -85,10 +85,10 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 
 	// Go through front/back facing list. Where the facing direction switches, there is a boundary
 	for (int i = 1; i < numPoints; i++)
-	if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1]) {
-		outerBoundaryIndices.push_back(i);
-		oneEdgeBoundaryWindings.push_back(facingFrontOneEdge[i]);
-	}
+		if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1]) {
+			outerBoundaryIndices.push_back(i);
+			oneEdgeBoundaryWindings.push_back(facingFrontOneEdge[i]);
+		}
 
 	// Check looping indices separately
 	if (facingFrontOneEdge[0] != facingFrontOneEdge[numPoints - 1]) {
@@ -177,7 +177,7 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 			}
 
 			sf::Vector2f pointToPrevPoint = prevPoint - point;
-		
+
 			LightSystem::Penumbra penumbra;
 
 			penumbra._source = point;
@@ -382,10 +382,10 @@ void LightSystem::getPenumbrasDirection(std::vector<Penumbra> &penumbras, std::v
 
 	// Go through front/back facing list. Where the facing direction switches, there is a boundary
 	for (int i = 1; i < numPoints; i++)
-	if (facingFrontBothEdges[i] != facingFrontBothEdges[i - 1]) {
-		innerBoundaryIndices.push_back(i);
-		bothEdgesBoundaryWindings.push_back(facingFrontBothEdges[i]);
-	}
+		if (facingFrontBothEdges[i] != facingFrontBothEdges[i - 1]) {
+			innerBoundaryIndices.push_back(i);
+			bothEdgesBoundaryWindings.push_back(facingFrontBothEdges[i]);
+		}
 
 	// Check looping indices separately
 	if (facingFrontBothEdges[0] != facingFrontBothEdges[numPoints - 1]) {
@@ -395,8 +395,8 @@ void LightSystem::getPenumbrasDirection(std::vector<Penumbra> &penumbras, std::v
 
 	// Go through front/back facing list. Where the facing direction switches, there is a boundary
 	for (int i = 1; i < numPoints; i++)
-	if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1])
-		outerBoundaryIndices.push_back(i);
+		if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1])
+			outerBoundaryIndices.push_back(i);
 
 	// Check looping indices separately
 	if (facingFrontOneEdge[0] != facingFrontOneEdge[numPoints - 1])
@@ -585,7 +585,6 @@ void LightSystem::getPenumbrasDirection(std::vector<Penumbra> &penumbras, std::v
 		}
 	}
 }
-
 void LightSystem::clear(sf::RenderTarget &rt, const sf::Color &color) {
 	sf::RectangleShape shape;
 	shape.setSize(sf::Vector2f(rt.getSize().x, rt.getSize().y));
@@ -602,13 +601,12 @@ void LightSystem::create(const sf::FloatRect &rootRegion, const sf::Vector2u &im
 
 	_lightTempTexture.create(imageSize.x, imageSize.y);
 	_emissionTempTexture.create(imageSize.x, imageSize.y);
+	_antumbraTempTexture.create(imageSize.x, imageSize.y);
 	_compositionTexture.create(imageSize.x, imageSize.y);
 
 	sf::Vector2f targetSizeInv = sf::Vector2f(1.0f / imageSize.x, 1.0f / imageSize.y);
-	
-	unshadowShader.setParameter("emissionTexture", _emissionTempTexture.getTexture());
+
 	unshadowShader.setParameter("penumbraTexture", penumbraTexture);
-	unshadowShader.setParameter("targetSizeInv", targetSizeInv);
 
 	lightOverShapeShader.setParameter("emissionTexture", _emissionTempTexture.getTexture());
 	lightOverShapeShader.setParameter("targetSizeInv", targetSizeInv);
@@ -640,14 +638,14 @@ void LightSystem::render(const sf::View &view, sf::Shader &unshadowShader, sf::S
 
 		_shapeQuadtree.queryRegion(lightShapes, pPointEmissionLight->getAABB());
 
-		pPointEmissionLight->render(view, _lightTempTexture, _emissionTempTexture, lightShapes, unshadowShader, lightOverShapeShader);
+		pPointEmissionLight->render(view, _lightTempTexture, _emissionTempTexture, _antumbraTempTexture, lightShapes, unshadowShader, lightOverShapeShader);
 
 		sf::Sprite sprite;
 
 		sprite.setTexture(_lightTempTexture.getTexture());
 
 		sf::RenderStates compoRenderStates;
-		compoRenderStates.blendMode = sf::BlendAdd;// sf::BlendMode(sf::BlendMode::One, sf::BlendMode::One, sf::BlendMode::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
+		compoRenderStates.blendMode = sf::BlendAdd;
 
 		_compositionTexture.draw(sprite, compoRenderStates);
 	}
@@ -676,7 +674,7 @@ void LightSystem::render(const sf::View &view, sf::Shader &unshadowShader, sf::S
 
 		_shapeQuadtree.queryShape(viewLightShapes, directionShape);
 
-		pDirectionEmissionLight->render(view, _lightTempTexture, _emissionTempTexture, viewLightShapes, unshadowShader, lightOverShapeShader, shadowExtension);
+		pDirectionEmissionLight->render(view, _lightTempTexture, _antumbraTempTexture, viewLightShapes, unshadowShader, shadowExtension);
 
 		sf::Sprite sprite;
 

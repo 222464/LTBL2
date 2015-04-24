@@ -17,6 +17,6 @@ namespace ltbl {
 			: _castDirection(0.0f, 1.0f), _sourceRadius(5.0f), _sourceDistance(100.0f)
 		{}
 
-		void render(const sf::View &view, sf::RenderTexture &lightTempTexture, sf::RenderTexture &emissionTempTexture, const std::vector<QuadtreeOccupant*> &shapes, sf::Shader &unshadowShader, sf::Shader &lightOverShapeShader, float shadowExtension);
+		void render(const sf::View &view, sf::RenderTexture &lightTempTexture, sf::RenderTexture &antumbraTempTexture, const std::vector<QuadtreeOccupant*> &shapes, sf::Shader &unshadowShader, float shadowExtension);
 	};
 }

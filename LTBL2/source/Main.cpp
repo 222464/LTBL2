@@ -39,20 +39,11 @@ int main() {
 
 	ls.create(ltbl::rectFromBounds(sf::Vector2f(-1000.0f, -1000.0f), sf::Vector2f(1000.0f, 1000.0f)), window.getSize(), penumbraTexture, unshadowShader, lightOverShapeShader);
 
-	/*std::shared_ptr<ltbl::LightDirectionEmission> light = std::make_shared<ltbl::LightDirectionEmission>();
-
-	light->_emissionSprite.setOrigin(sf::Vector2f(pointLightTexture.getSize().x * 0.5f, pointLightTexture.getSize().y * 0.5f));
-	light->_emissionSprite.setTexture(pointLightTexture);
-	light->_emissionSprite.setScale(sf::Vector2f(6.0f, 6.0f));
-	light->_emissionSprite.setColor(sf::Color(255, 230, 200));
-	light->_emissionSprite.setPosition(sf::Vector2f(0.0f, 0.0f));
-	light->_castDirection = ltbl::vectorNormalize(sf::Vector2f(-0.1f, 0.6f));
-	
-	ls.addLight(light);*/
+	std::uniform_int_distribution<int> colorDist(0, 255);
 
 	tmx::MapLoader ml("resources/maps");
 
-	ml.Load("spookyMap1.tmx");
+	ml.Load("testMap3.tmx");
 
 	bool quit = false;
 
@@ -150,6 +141,17 @@ int main() {
 		}
 	}
 
+	std::shared_ptr<ltbl::LightPointEmission> mouseLight = std::make_shared<ltbl::LightPointEmission>();
+
+	mouseLight->_emissionSprite.setOrigin(sf::Vector2f(pointLightTexture.getSize().x * 0.5f, pointLightTexture.getSize().y * 0.5f));
+	mouseLight->_emissionSprite.setTexture(pointLightTexture);
+	mouseLight->_emissionSprite.setScale(sf::Vector2f(1.0f, 1.0f));
+	mouseLight->_emissionSprite.setColor(sf::Color(150, 150, 150));
+	mouseLight->_emissionSprite.setPosition(sf::Vector2f(0.0f, 0.0f));
+	mouseLight->_localCastCenter = sf::Vector2f(pointLightTexture.getSize().x * 0.5f, pointLightTexture.getSize().y * 0.5f);
+
+	ls.addLight(mouseLight);
+
 	sf::View view = window.getDefaultView();
 
 	view.setCenter(sf::Vector2f(ml.GetMapSize().x * 0.5f, ml.GetMapSize().y * 0.5f));
@@ -187,6 +189,9 @@ int main() {
 			view.move(0.0f, -speed);
 
 		window.setView(view);
+
+		mouseLight->_emissionSprite.setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+		mouseLight->quadtreeUpdate();
 
 		// ---------------------------- Rendering ----------------------------
 

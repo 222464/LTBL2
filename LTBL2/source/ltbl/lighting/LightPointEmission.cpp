@@ -4,11 +4,13 @@
 
 #include <ltbl/lighting/LightSystem.h>
 
+#include <iostream>
+
 #include <assert.h>
 
 using namespace ltbl;
 
-void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTempTexture, sf::RenderTexture &emissionTempTexture, const std::vector<QuadtreeOccupant*> &shapes, sf::Shader &unshadowShader, sf::Shader &lightOverShapeShader) {
+void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTempTexture, sf::RenderTexture &emissionTempTexture, sf::RenderTexture &antumbraTempTexture, const std::vector<QuadtreeOccupant*> &shapes, sf::Shader &unshadowShader, sf::Shader &lightOverShapeShader) {
 	LightSystem::clear(emissionTempTexture, sf::Color::Black);
 
 	emissionTempTexture.setView(view);
@@ -23,9 +25,16 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 
 	lightTempTexture.draw(_emissionSprite);
 
-	sf::Vector2f castCenter = _emissionSprite.getTransform().transformPoint(_localCastCenter);
-	
+	sf::Transform t;
+	t.translate(_emissionSprite.getPosition());
+	t.rotate(_emissionSprite.getRotation());
+	t.scale(_emissionSprite.getScale());
+
+	sf::Vector2f castCenter = t.transformPoint(_localCastCenter);
+
 	float shadowExtension = _shadowOverExtendMultiplier * (getAABB().width + getAABB().height);
+
+	std::vector<LightSystem::Penumbra> penumbras;
 
 	struct OuterEdges {
 		std::vector<int> _outerBoundaryIndices;
@@ -33,20 +42,6 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 	};
 
 	std::vector<OuterEdges> outerEdges(shapes.size());
-
-	sf::VertexArray vertexArray;
-
-	vertexArray.setPrimitiveType(sf::PrimitiveType::Triangles);
-
-	vertexArray.resize(3);
-
-	vertexArray[0].texCoords = sf::Vector2f(0.0f, 1.0f);
-	vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
-	vertexArray[2].texCoords = sf::Vector2f(0.0f, 0.0f);
-
-	sf::RenderStates penumbraRenderStates;
-	penumbraRenderStates.blendMode = sf::BlendAdd;
-	penumbraRenderStates.shader = &unshadowShader;
 
 	// Mask off light shape (over-masking - mask too much, reveal penumbra/antumbra afterwards)
 	for (int i = 0; i < shapes.size(); i++) {
@@ -56,9 +51,10 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 		std::vector<int> innerBoundaryIndices;
 		std::vector<sf::Vector2f> innerBoundaryVectors;
 
-		std::vector<LightSystem::Penumbra> penumbras;
-
 		LightSystem::getPenumbrasPoint(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerEdges[i]._outerBoundaryIndices, outerEdges[i]._outerBoundaryVectors, pLightShape->_shape, castCenter, _sourceRadius);
+
+		if (innerBoundaryIndices.size() != 2)
+			continue;
 
 		// Render shape
 		if (!pLightShape->_renderLightOverShape) {
@@ -67,15 +63,84 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 			lightTempTexture.draw(pLightShape->_shape);
 		}
 
-		if (innerBoundaryIndices.size() == 2) {
-			sf::Vector2f as = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[0]));
-			sf::Vector2f bs = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[1]));
-			sf::Vector2f ad = innerBoundaryVectors[0];
-			sf::Vector2f bd = innerBoundaryVectors[1];
+		sf::RenderStates maskRenderStates;
+		maskRenderStates.blendMode = sf::BlendNone;
 
-			sf::RenderStates maskRenderStates;
-			maskRenderStates.blendMode = sf::BlendNone;
+		sf::Vector2f as = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(outerEdges[i]._outerBoundaryIndices[0]));
+		sf::Vector2f bs = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(outerEdges[i]._outerBoundaryIndices[1]));
+		sf::Vector2f ad = outerEdges[i]._outerBoundaryVectors[0];
+		sf::Vector2f bd = outerEdges[i]._outerBoundaryVectors[1];
 
+		sf::Vector2f intersection;
+
+		// Handle antumbras as a seperate case
+		if (rayIntersect(as, ad, bs, bd, intersection)) {
+			sf::Vector2f asi = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[0]));
+			sf::Vector2f bsi = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[1]));
+			sf::Vector2f adi = innerBoundaryVectors[0];
+			sf::Vector2f bdi = innerBoundaryVectors[1];
+
+			LightSystem::clear(antumbraTempTexture, sf::Color::White);
+
+			antumbraTempTexture.setView(view);
+
+			sf::ConvexShape maskShape;
+
+			maskShape.setPointCount(4);
+
+			maskShape.setPoint(0, asi);
+			maskShape.setPoint(1, bsi);
+			maskShape.setPoint(2, bsi + vectorNormalize(bdi) * shadowExtension);
+			maskShape.setPoint(3, asi + vectorNormalize(adi) * shadowExtension);
+
+			maskShape.setFillColor(sf::Color::Black);
+
+			antumbraTempTexture.draw(maskShape);
+
+			// Add light back for antumbra/penumbras
+			sf::VertexArray vertexArray;
+
+			vertexArray.setPrimitiveType(sf::PrimitiveType::Triangles);
+
+			vertexArray.resize(3);
+
+			sf::RenderStates penumbraRenderStates;
+			penumbraRenderStates.blendMode = sf::BlendAdd;
+			penumbraRenderStates.shader = &unshadowShader;
+
+			// Unmask with penumbras
+			for (int j = 0; j < penumbras.size(); j++) {
+				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
+				unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
+
+				vertexArray[0].position = penumbras[j]._source;
+				vertexArray[1].position = penumbras[j]._source + vectorNormalize(penumbras[j]._lightEdge) * shadowExtension;
+				vertexArray[2].position = penumbras[j]._source + vectorNormalize(penumbras[j]._darkEdge) * shadowExtension;
+
+				vertexArray[0].texCoords = sf::Vector2f(0.0f, 1.0f);
+				vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
+				vertexArray[2].texCoords = sf::Vector2f(0.0f, 0.0f);
+
+				antumbraTempTexture.draw(vertexArray, penumbraRenderStates);
+			}
+
+			antumbraTempTexture.display();
+
+			// Multiply back to lightTempTexture
+			sf::RenderStates antumbraRenderStates;
+			antumbraRenderStates.blendMode = sf::BlendMultiply;
+
+			sf::Sprite s;
+
+			s.setTexture(antumbraTempTexture.getTexture());
+
+			lightTempTexture.setView(lightTempTexture.getDefaultView());
+
+			lightTempTexture.draw(s, antumbraRenderStates);
+
+			lightTempTexture.setView(view);
+		}
+		else {
 			sf::ConvexShape maskShape;
 
 			maskShape.setPointCount(4);
@@ -87,112 +152,32 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 
 			maskShape.setFillColor(sf::Color::Black);
 
-			lightTempTexture.draw(maskShape, maskRenderStates);
-		}
-		else if (innerBoundaryIndices.size() == 1) {
-			sf::Vector2f as = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[0]));
-			sf::Vector2f ad = innerBoundaryVectors[0];
-			sf::Vector2f bd = innerBoundaryVectors[1];
+			lightTempTexture.draw(maskShape);
 
-			sf::RenderStates maskRenderStates;
-			maskRenderStates.blendMode = sf::BlendNone;
+			sf::VertexArray vertexArray;
 
-			sf::ConvexShape maskShape;
+			vertexArray.setPrimitiveType(sf::PrimitiveType::Triangles);
 
-			maskShape.setPointCount(3);
+			vertexArray.resize(3);
 
-			maskShape.setPoint(0, as);
-			maskShape.setPoint(1, as + vectorNormalize(bd) * shadowExtension);
-			maskShape.setPoint(2, as + vectorNormalize(ad) * shadowExtension);
+			sf::RenderStates penumbraRenderStates;
+			penumbraRenderStates.blendMode = sf::BlendMultiply;
+			penumbraRenderStates.shader = &unshadowShader;
 
-			maskShape.setFillColor(sf::Color::Black);
+			// Unmask with penumbras
+			for (int j = 0; j < penumbras.size(); j++) {
+				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
+				unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
 
-			lightTempTexture.draw(maskShape, maskRenderStates);
-		}
+				vertexArray[0].position = penumbras[j]._source;
+				vertexArray[1].position = penumbras[j]._source + vectorNormalize(penumbras[j]._lightEdge) * shadowExtension;
+				vertexArray[2].position = penumbras[j]._source + vectorNormalize(penumbras[j]._darkEdge) * shadowExtension;
 
-		// Mask with penumbras
-		for (int j = 0; j < penumbras.size(); j++) {
-			unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
-			unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
+				vertexArray[0].texCoords = sf::Vector2f(0.0f, 1.0f);
+				vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
+				vertexArray[2].texCoords = sf::Vector2f(0.0f, 0.0f);
 
-			vertexArray[0].position = penumbras[j]._source;
-			vertexArray[1].position = penumbras[j]._source + vectorNormalize(penumbras[j]._lightEdge) * shadowExtension;
-			vertexArray[2].position = penumbras[j]._source + vectorNormalize(penumbras[j]._darkEdge) * shadowExtension;
-
-			lightTempTexture.draw(vertexArray, penumbraRenderStates);
-		}
-	}
-
-	/*sf::VertexArray vertexArray;
-
-	vertexArray.setPrimitiveType(sf::PrimitiveType::Triangles);
-
-	vertexArray.resize(3);
-
-	sf::RenderStates penumbraRenderStates;
-	penumbraRenderStates.blendMode = sf::BlendMode(sf::BlendMode::OneMinusDstAlpha, sf::BlendMode::One, sf::BlendMode::Equation::Add, sf::BlendMode::Zero, sf::BlendMode::One, sf::BlendMode::Add);
-	penumbraRenderStates.shader = &unshadowShader;
-
-	{
-		// Mask with penumbras
-		for (int j = 0; j < penumbras.size(); j++) {
-			unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
-			unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
-
-			vertexArray[0].position = penumbras[j]._source;
-			vertexArray[1].position = penumbras[j]._source + vectorNormalize(penumbras[j]._lightEdge) * shadowExtension;
-			vertexArray[2].position = penumbras[j]._source + vectorNormalize(penumbras[j]._darkEdge) * shadowExtension;
-
-			vertexArray[0].texCoords = sf::Vector2f(0.0f, 1.0f);
-			vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
-			vertexArray[2].texCoords = sf::Vector2f(0.0f, 0.0f);
-
-			lightTempTexture.draw(vertexArray, penumbraRenderStates);
-		}
-	}*/
-
-	for (int i = 0; i < shapes.size(); i++) {
-		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
-
-		int halfBoundaries = outerEdges[i]._outerBoundaryIndices.size() / 2;
-
-		for (int j = 0; j < halfBoundaries; j++) {
-			int index0 = 0 + j;
-			int index1 = halfBoundaries + j;
-
-			sf::Vector2f as = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(outerEdges[i]._outerBoundaryIndices[index0]));
-			sf::Vector2f bs = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(outerEdges[i]._outerBoundaryIndices[index1]));
-			sf::Vector2f ad = outerEdges[i]._outerBoundaryVectors[index0];
-			sf::Vector2f bd = outerEdges[i]._outerBoundaryVectors[index1];
-
-			sf::Vector2f intersection;
-
-			if (rayIntersect(as, ad, bs, bd, intersection)) {
-				sf::ConvexShape maskShape;
-
-				maskShape.setPointCount(3);
-
-				maskShape.setPoint(0, as);
-				maskShape.setPoint(1, bs);
-				maskShape.setPoint(2, intersection);
-
-				maskShape.setFillColor(sf::Color::Black);
-
-				lightTempTexture.draw(maskShape);
-			}
-			else {
-				sf::ConvexShape maskShape;
-
-				maskShape.setPointCount(4);
-
-				maskShape.setPoint(0, as);
-				maskShape.setPoint(1, bs);
-				maskShape.setPoint(2, bs + vectorNormalize(bd) * shadowExtension);
-				maskShape.setPoint(3, as + vectorNormalize(ad) * shadowExtension);
-
-				maskShape.setFillColor(sf::Color::Black);
-
-				lightTempTexture.draw(maskShape);
+				lightTempTexture.draw(vertexArray, penumbraRenderStates);
 			}
 		}
 	}
