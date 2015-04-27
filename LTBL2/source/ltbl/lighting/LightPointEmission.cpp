@@ -34,8 +34,6 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 
 	float shadowExtension = _shadowOverExtendMultiplier * (getAABB().width + getAABB().height);
 
-	std::vector<LightSystem::Penumbra> penumbras;
-
 	struct OuterEdges {
 		std::vector<int> _outerBoundaryIndices;
 		std::vector<sf::Vector2f> _outerBoundaryVectors;
@@ -50,10 +48,11 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 		// Get boundaries
 		std::vector<int> innerBoundaryIndices;
 		std::vector<sf::Vector2f> innerBoundaryVectors;
+		std::vector<LightSystem::Penumbra> penumbras;
 
 		LightSystem::getPenumbrasPoint(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerEdges[i]._outerBoundaryIndices, outerEdges[i]._outerBoundaryVectors, pLightShape->_shape, castCenter, _sourceRadius);
 
-		if (innerBoundaryIndices.size() != 2)
+		if (innerBoundaryIndices.size() != 2 || outerEdges[i]._outerBoundaryIndices.size() != 2)
 			continue;
 
 		// Render shape
@@ -71,10 +70,10 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 		sf::Vector2f ad = outerEdges[i]._outerBoundaryVectors[0];
 		sf::Vector2f bd = outerEdges[i]._outerBoundaryVectors[1];
 
-		sf::Vector2f intersection;
+		sf::Vector2f intersectionOuter;
 
 		// Handle antumbras as a seperate case
-		if (rayIntersect(as, ad, bs, bd, intersection)) {
+		if (rayIntersect(as, ad, bs, bd, intersectionOuter)) {
 			sf::Vector2f asi = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[0]));
 			sf::Vector2f bsi = pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[1]));
 			sf::Vector2f adi = innerBoundaryVectors[0];
@@ -84,18 +83,35 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 
 			antumbraTempTexture.setView(view);
 
-			sf::ConvexShape maskShape;
+			sf::Vector2f intersectionInner;
 
-			maskShape.setPointCount(4);
+			if (rayIntersect(asi, adi, bsi, bdi, intersectionInner)) {
+				sf::ConvexShape maskShape;
 
-			maskShape.setPoint(0, asi);
-			maskShape.setPoint(1, bsi);
-			maskShape.setPoint(2, bsi + vectorNormalize(bdi) * shadowExtension);
-			maskShape.setPoint(3, asi + vectorNormalize(adi) * shadowExtension);
+				maskShape.setPointCount(3);
 
-			maskShape.setFillColor(sf::Color::Black);
+				maskShape.setPoint(0, asi);
+				maskShape.setPoint(1, bsi);
+				maskShape.setPoint(2, intersectionInner);
 
-			antumbraTempTexture.draw(maskShape);
+				maskShape.setFillColor(sf::Color::Black);
+
+				antumbraTempTexture.draw(maskShape);	
+			}
+			else {
+				sf::ConvexShape maskShape;
+
+				maskShape.setPointCount(4);
+
+				maskShape.setPoint(0, asi);
+				maskShape.setPoint(1, bsi);
+				maskShape.setPoint(2, bsi + vectorNormalize(bdi) * shadowExtension);
+				maskShape.setPoint(3, asi + vectorNormalize(adi) * shadowExtension);
+
+				maskShape.setFillColor(sf::Color::Black);
+
+				antumbraTempTexture.draw(maskShape);
+			}
 
 			// Add light back for antumbra/penumbras
 			sf::VertexArray vertexArray;

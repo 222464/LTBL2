@@ -17,13 +17,6 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 	for (int i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
-		// Render shape
-		pLightShape->_shape.setFillColor(sf::Color::Black);
-
-		lightTempTexture.setView(view);
-
-		lightTempTexture.draw(pLightShape->_shape);
-
 		// Get boundaries
 		std::vector<LightSystem::Penumbra> penumbras;
 		std::vector<int> innerBoundaryIndices;
@@ -33,8 +26,12 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 		LightSystem::getPenumbrasDirection(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerBoundaryIndices, outerBoundaryVectors, pLightShape->_shape, _castDirection, _sourceRadius, _sourceDistance);
 
-		if (innerBoundaryIndices.size() != 2)
+		if (innerBoundaryIndices.size() != 2 || outerBoundaryIndices.size() != 2)
 			continue;
+
+		LightSystem::clear(antumbraTempTexture, sf::Color::White);
+
+		antumbraTempTexture.setView(view);
 
 		sf::ConvexShape maskShape;
 
@@ -54,7 +51,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 		maskShape.setFillColor(sf::Color::Black);
 
-		lightTempTexture.draw(maskShape);
+		antumbraTempTexture.draw(maskShape);
 
 		sf::VertexArray vertexArray;
 
@@ -80,9 +77,25 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 				vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
 				vertexArray[2].texCoords = sf::Vector2f(0.0f, 0.0f);
 
-				lightTempTexture.draw(vertexArray, states);
+				antumbraTempTexture.draw(vertexArray, states);
 			}
 		}
+
+		antumbraTempTexture.display();
+
+		// Multiply back to lightTempTexture
+		sf::RenderStates antumbraRenderStates;
+		antumbraRenderStates.blendMode = sf::BlendMultiply;
+
+		sf::Sprite s;
+
+		s.setTexture(antumbraTempTexture.getTexture());
+
+		lightTempTexture.setView(lightTempTexture.getDefaultView());
+
+		lightTempTexture.draw(s, antumbraRenderStates);
+
+		lightTempTexture.setView(view);
 	}
 
 	for (int i = 0; i < shapes.size(); i++) {

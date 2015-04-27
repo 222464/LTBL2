@@ -11,6 +11,4 @@ find_package(SFML 2.2 REQUIRED system window graphics)
  
 include_directories(${SFML_INCLUDE_DIR})
  
-add_executable(CHTMGPU "${PROJECT_SOURCE_DIR}/source/Main.cpp")
-
-target_link_libraries(CHTMGPU ${SFML_LIBRARIES})
+target_link_libraries(LTBL2 ${SFML_LIBRARIES})
