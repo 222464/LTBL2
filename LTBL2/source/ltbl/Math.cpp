@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include <cmath>
+
 using namespace ltbl;
 
 sf::Vector2f ltbl::rectCenter(const sf::FloatRect &rect) {
@@ -130,7 +132,7 @@ bool ltbl::shapeIntersection(const sf::ConvexShape &left, const sf::ConvexShape 
 
 		sf::Vector2f edge = nextPoint - point;
 
-		// Project points from other shape onto perpedicular
+		// Project points from other shape onto perpendicular
 		sf::Vector2f edgePerpendicular = sf::Vector2f(edge.y, -edge.x);
 		
 		float pointProj = vectorProject(point, edgePerpendicular);
@@ -158,7 +160,7 @@ bool ltbl::shapeIntersection(const sf::ConvexShape &left, const sf::ConvexShape 
 
 		sf::Vector2f edge = nextPoint - point;
 
-		// Project points from other shape onto perpedicular
+		// Project points from other shape onto perpendicular
 		sf::Vector2f edgePerpendicular = sf::Vector2f(edge.y, -edge.x);
 
 		float pointProj = vectorProject(point, edgePerpendicular);
