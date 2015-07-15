@@ -1,4 +1,4 @@
-#include <ltbl/Quadtree/Quadtree.h>
+#include <ltbl/quadtree/Quadtree.h>
 
 #include <algorithm>
 

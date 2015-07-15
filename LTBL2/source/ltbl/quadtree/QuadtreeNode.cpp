@@ -1,6 +1,6 @@
-#include <ltbl/Quadtree/QuadtreeNode.h>
+#include <ltbl/quadtree/QuadtreeNode.h>
 
-#include <ltbl/Quadtree/Quadtree.h>
+#include <ltbl/quadtree/Quadtree.h>
 
 #include <assert.h>
 
