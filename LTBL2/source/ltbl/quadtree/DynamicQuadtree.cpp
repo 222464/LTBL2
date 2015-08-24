@@ -1,4 +1,4 @@
-#include <ltbl/Quadtree/DynamicQuadtree.h>
+#include <ltbl/quadtree/DynamicQuadtree.h>
 
 #include <assert.h>
 
