@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ltbl/Quadtree/QuadtreeOccupant.h>
+#include <ltbl/quadtree/QuadtreeOccupant.h>
 
 #include <memory>
 #include <array>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ltbl/Quadtree/Quadtree.h>
+#include <ltbl/quadtree/Quadtree.h>
 
 namespace ltbl {
 	class StaticQuadtree : public Quadtree
