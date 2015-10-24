@@ -11,7 +11,7 @@ namespace ltbl {
 			_pRootNode.reset(new QuadtreeNode(rootRegion, 0, nullptr, this));
 		}
 
-		StaticQuadtree(const StaticQuadtree &other) {
+		StaticQuadtree(const StaticQuadtree &other) : Quadtree(other) {
 			*this = other;
 		}
 

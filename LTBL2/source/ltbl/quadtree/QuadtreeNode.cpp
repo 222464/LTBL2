@@ -7,8 +7,7 @@
 using namespace ltbl;
 
 QuadtreeNode::QuadtreeNode(const sf::FloatRect &region, int level, QuadtreeNode* pParent, Quadtree* pQuadtree)
-: _hasChildren(false),
-_region(region), _level(level), _pParent(pParent), _pQuadtree(pQuadtree),
+:  _pParent(pParent), _pQuadtree(pQuadtree), _hasChildren(false),  _region(region), _level(level),
 _numOccupantsBelow(0)
 {}
 
@@ -272,7 +271,7 @@ void QuadtreeNode::add(QuadtreeOccupant* oc) {
 	}
 	else {
 		// Check if we need a new partition
-		if (static_cast<signed>(_occupants.size()) >= _pQuadtree->_maxNumNodeOccupants && _level < _pQuadtree->_maxLevels) {
+		if (_occupants.size() >= _pQuadtree->_maxNumNodeOccupants && _level < _pQuadtree->_maxLevels) {
 			partition();
 
 			if (addToChildren(oc))

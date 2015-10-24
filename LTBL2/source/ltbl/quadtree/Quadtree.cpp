@@ -66,8 +66,6 @@ void Quadtree::queryRegion(std::vector<QuadtreeOccupant*> &result, const sf::Flo
 	// Query outside root elements
 	for (std::unordered_set<QuadtreeOccupant*>::iterator it = _outsideRoot.begin(); it != _outsideRoot.end(); it++) {
 		QuadtreeOccupant* oc = *it;
-		sf::FloatRect r = oc->getAABB();
-
 		if (oc != nullptr && region.intersects(oc->getAABB()))
 			// Intersects, add to list
 			result.push_back(oc);

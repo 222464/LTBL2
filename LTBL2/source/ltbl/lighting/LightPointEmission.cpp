@@ -42,7 +42,7 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 	std::vector<OuterEdges> outerEdges(shapes.size());
 
 	// Mask off light shape (over-masking - mask too much, reveal penumbra/antumbra afterwards)
-	for (int i = 0; i < shapes.size(); i++) {
+	for (unsigned i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
 		// Get boundaries
@@ -125,7 +125,7 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 			penumbraRenderStates.shader = &unshadowShader;
 
 			// Unmask with penumbras
-			for (int j = 0; j < penumbras.size(); j++) {
+			for (unsigned j = 0; j < penumbras.size(); j++) {
 				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
 				unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
 
@@ -181,7 +181,7 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 			penumbraRenderStates.shader = &unshadowShader;
 
 			// Unmask with penumbras
-			for (int j = 0; j < penumbras.size(); j++) {
+			for (unsigned j = 0; j < penumbras.size(); j++) {
 				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
 				unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
 
@@ -198,7 +198,7 @@ void LightPointEmission::render(const sf::View &view, sf::RenderTexture &lightTe
 		}
 	}
 
-	for (int i = 0; i < shapes.size(); i++) {
+	for (unsigned i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
 		if (pLightShape->_renderLightOverShape) {
