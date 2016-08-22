@@ -113,15 +113,15 @@ sf::FloatRect ltbl::rectExpand(const sf::FloatRect &rect, const sf::Vector2f &po
 bool ltbl::shapeIntersection(const sf::ConvexShape &left, const sf::ConvexShape &right) {
 	std::vector<sf::Vector2f> transformedLeft(left.getPointCount());
 
-	for (int i = 0; i < left.getPointCount(); i++)
+	for (unsigned i = 0; i < left.getPointCount(); i++)
 		transformedLeft[i] = left.getTransform().transformPoint(left.getPoint(i));
 
 	std::vector<sf::Vector2f> transformedRight(right.getPointCount());
 
-	for (int i = 0; i < right.getPointCount(); i++)
+	for (unsigned i = 0; i < right.getPointCount(); i++)
 		transformedRight[i] = right.getTransform().transformPoint(right.getPoint(i));
 
-	for (int i = 0; i < left.getPointCount(); i++) {
+	for (unsigned i = 0; i < left.getPointCount(); i++) {
 		sf::Vector2f point = transformedLeft[i];
 		sf::Vector2f nextPoint;
 
@@ -139,7 +139,7 @@ bool ltbl::shapeIntersection(const sf::ConvexShape &left, const sf::ConvexShape 
 
 		float minRightProj = vectorProject(transformedRight[0], edgePerpendicular);
 
-		for (int j = 1; j < right.getPointCount(); j++) {
+		for (unsigned j = 1; j < right.getPointCount(); j++) {
 			float proj = vectorProject(transformedRight[j], edgePerpendicular);
 
 			minRightProj = std::min(minRightProj, proj);
@@ -149,7 +149,7 @@ bool ltbl::shapeIntersection(const sf::ConvexShape &left, const sf::ConvexShape 
 			return false;
 	}
 
-	for (int i = 0; i < right.getPointCount(); i++) {
+	for (unsigned i = 0; i < right.getPointCount(); i++) {
 		sf::Vector2f point = transformedRight[i];
 		sf::Vector2f nextPoint;
 
@@ -167,7 +167,7 @@ bool ltbl::shapeIntersection(const sf::ConvexShape &left, const sf::ConvexShape 
 
 		float minRightProj = vectorProject(transformedLeft[0], edgePerpendicular);
 
-		for (int j = 1; j < left.getPointCount(); j++) {
+		for (unsigned j = 1; j < left.getPointCount(); j++) {
 			float proj = vectorProject(transformedLeft[j], edgePerpendicular);
 
 			minRightProj = std::min(minRightProj, proj);
@@ -199,7 +199,7 @@ sf::ConvexShape ltbl::shapeFixWinding(const sf::ConvexShape &shape) {
 	sf::Vector2f center = sf::Vector2f(0.0f, 0.0f);
 	std::list<sf::Vector2f> points;
 
-	for (int i = 0; i < shape.getPointCount(); i++) {
+	for (unsigned i = 0; i < shape.getPointCount(); i++) {
 		points.push_back(shape.getPoint(i));
 		center += shape.getPoint(i);
 	}
@@ -241,7 +241,7 @@ sf::ConvexShape ltbl::shapeFixWinding(const sf::ConvexShape &shape) {
 
 	sf::ConvexShape fixedShape(shape.getPointCount());
 
-	for (int i = 0; i < shape.getPointCount(); i++)
+	for (unsigned i = 0; i < shape.getPointCount(); i++)
 		fixedShape.setPoint(i, fixedPoints[i]);
 
 	return fixedShape;

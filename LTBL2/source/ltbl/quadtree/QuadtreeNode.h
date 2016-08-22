@@ -20,9 +20,9 @@ namespace ltbl {
 
 		sf::FloatRect _region;
 
-		int _level;
+		unsigned _level;
 
-		int _numOccupantsBelow;
+		unsigned _numOccupantsBelow;
 
 		void getPossibleOccupantPosition(QuadtreeOccupant* oc, sf::Vector2i &point);
 

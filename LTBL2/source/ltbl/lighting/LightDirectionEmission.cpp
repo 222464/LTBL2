@@ -14,7 +14,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 	LightSystem::clear(lightTempTexture, sf::Color::White);
 
 	// Mask off light shape (over-masking - mask too much, reveal penumbra/antumbra afterwards)
-	for (int i = 0; i < shapes.size(); i++) {
+	for (unsigned i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
 		// Get boundaries
@@ -37,7 +37,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 		float maxDist = 0.0f;
 
-		for (int j = 0; j < pLightShape->_shape.getPointCount(); j++)
+		for (unsigned j = 0; j < pLightShape->_shape.getPointCount(); j++)
 			maxDist = std::max(maxDist, vectorMagnitude(view.getCenter() - pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(j))));
 
 		float totalShadowExtension = shadowExtension + maxDist;
@@ -65,7 +65,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 			states.shader = &unshadowShader;
 
 			// Unmask with penumbras
-			for (int j = 0; j < penumbras.size(); j++) {
+			for (unsigned j = 0; j < penumbras.size(); j++) {
 				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
 				unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
 
@@ -98,7 +98,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 		lightTempTexture.setView(view);
 	}
 
-	for (int i = 0; i < shapes.size(); i++) {
+	for (unsigned i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
 		if (pLightShape->_renderLightOverShape) {

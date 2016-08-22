@@ -66,7 +66,7 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 		sf::Vector2f normal = vectorNormalize(sf::Vector2f(-pointToNextPoint.y, pointToNextPoint.x));
 
 		// Front facing, mark it
-		facingFrontBothEdges.push_back((vectorDot(firstEdgeRay, normal) > 0.0f && vectorDot(secondEdgeRay, normal) > 0.0f) || vectorDot(firstNextEdgeRay, normal) > 0.0f && vectorDot(secondNextEdgeRay, normal) > 0.0f);
+		facingFrontBothEdges.push_back((vectorDot(firstEdgeRay, normal) > 0.0f && vectorDot(secondEdgeRay, normal) > 0.0f) || (vectorDot(firstNextEdgeRay, normal) > 0.0f && vectorDot(secondNextEdgeRay, normal) > 0.0f));
 		facingFrontOneEdge.push_back((vectorDot(firstEdgeRay, normal) > 0.0f || vectorDot(secondEdgeRay, normal) > 0.0f) || vectorDot(firstNextEdgeRay, normal) > 0.0f || vectorDot(secondNextEdgeRay, normal) > 0.0f);
 	}
 
@@ -97,7 +97,7 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 	}
 
 	// Compute outer boundary vectors
-	for (int bi = 0; bi < outerBoundaryIndices.size(); bi++) {
+	for (unsigned bi = 0; bi < outerBoundaryIndices.size(); bi++) {
 		int penumbraIndex = outerBoundaryIndices[bi];
 		bool winding = oneEdgeBoundaryWindings[bi];
 
@@ -117,7 +117,7 @@ void LightSystem::getPenumbrasPoint(std::vector<Penumbra> &penumbras, std::vecto
 		outerBoundaryVectors.push_back(winding ? firstEdgeRay : secondEdgeRay);
 	}
 
-	for (int bi = 0; bi < innerBoundaryIndices.size(); bi++) {
+	for (unsigned bi = 0; bi < innerBoundaryIndices.size(); bi++) {
 		int penumbraIndex = innerBoundaryIndices[bi];
 		bool winding = bothEdgesBoundaryWindings[bi];
 
@@ -376,8 +376,8 @@ void LightSystem::getPenumbrasDirection(std::vector<Penumbra> &penumbras, std::v
 		sf::Vector2f normal = vectorNormalize(sf::Vector2f(-pointToNextPoint.y, pointToNextPoint.x));
 
 		// Front facing, mark it
-		facingFrontBothEdges.push_back((vectorDot(firstEdgeRay, normal) > 0.0f && vectorDot(secondEdgeRay, normal) > 0.0f) || vectorDot(firstNextEdgeRay, normal) > 0.0f && vectorDot(secondNextEdgeRay, normal) > 0.0f);
-		facingFrontOneEdge.push_back((vectorDot(firstEdgeRay, normal) > 0.0f || vectorDot(secondEdgeRay, normal) > 0.0f) || vectorDot(firstNextEdgeRay, normal) > 0.0f || vectorDot(secondNextEdgeRay, normal) > 0.0f);
+		facingFrontBothEdges.push_back((vectorDot(firstEdgeRay, normal) > 0.0f && vectorDot(secondEdgeRay, normal) > 0.0f) || (vectorDot(firstNextEdgeRay, normal) > 0.0f && vectorDot(secondNextEdgeRay, normal) > 0.0f));
+		facingFrontOneEdge.push_back((vectorDot(firstEdgeRay, normal) > 0.0f || vectorDot(secondEdgeRay, normal) > 0.0f) || (vectorDot(firstNextEdgeRay, normal) > 0.0f || vectorDot(secondNextEdgeRay, normal) > 0.0f));
 	}
 
 	// Go through front/back facing list. Where the facing direction switches, there is a boundary
@@ -402,7 +402,7 @@ void LightSystem::getPenumbrasDirection(std::vector<Penumbra> &penumbras, std::v
 	if (facingFrontOneEdge[0] != facingFrontOneEdge[numPoints - 1])
 		outerBoundaryIndices.push_back(0);
 
-	for (int bi = 0; bi < innerBoundaryIndices.size(); bi++) {
+	for (unsigned bi = 0; bi < innerBoundaryIndices.size(); bi++) {
 		int penumbraIndex = innerBoundaryIndices[bi];
 		bool winding = bothEdgesBoundaryWindings[bi];
 
@@ -630,7 +630,7 @@ void LightSystem::render(const sf::View &view, sf::Shader &unshadowShader, sf::S
 
 	_lightPointEmissionQuadtree.queryRegion(viewPointEmissionLights, viewBounds);
 
-	for (int l = 0; l < viewPointEmissionLights.size(); l++) {
+	for (unsigned l = 0; l < viewPointEmissionLights.size(); l++) {
 		LightPointEmission* pPointEmissionLight = static_cast<LightPointEmission*>(viewPointEmissionLights[l]);
 
 		// Query shapes this light is affected by
