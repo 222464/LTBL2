@@ -33,7 +33,11 @@ int main() {
 
 	unshadowShader.loadFromFile("resources/unshadowShader.vert", "resources/unshadowShader.frag");
 
-	ls.create(ltbl::rectFromBounds(sf::Vector2f(-1000.0f, -1000.0f), sf::Vector2f(1000.0f, 1000.0f)), window.getSize(), penumbraTexture, unshadowShader);
+	sf::Shader lightOverShapeShader;
+
+	lightOverShapeShader.loadFromFile("resources/lightOverShapeShader.vert", "resources/lightOverShapeShader.frag");
+
+	ls.create(ltbl::rectFromBounds(sf::Vector2f(-1000.0f, -1000.0f), sf::Vector2f(1000.0f, 1000.0f)), window.getSize(), penumbraTexture, unshadowShader, lightOverShapeShader );
 
 	std::shared_ptr<ltbl::LightDirectionEmission> light = std::make_shared<ltbl::LightDirectionEmission>();
 
@@ -163,7 +167,7 @@ int main() {
 
 		window.clear(sf::Color::White);
 
-		ls.render(view, unshadowShader);
+		ls.render(view, unshadowShader, lightOverShapeShader);
 
 		sf::Sprite sprite;
 		sprite.setTexture(ls.getLightingTexture());
