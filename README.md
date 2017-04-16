@@ -36,7 +36,7 @@ Quick Start
 The first step is to include LTBL2's light system:
 
 ```cpp
-#include <ltbl/lighting/LightSystem.h>
+# include <ltbl/lighting/LightSystem.h>
 ```
 
 To use LTBL2, you must first load the resources LTBL2 requires. The resources are located in the resources directory.
