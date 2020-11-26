@@ -1,7 +1,7 @@
 #include <ltbl/lighting/LightSystem.h>
 
 #include <assert.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 using namespace ltbl;
