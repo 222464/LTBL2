@@ -32,3 +32,12 @@ set( SOURCES
 add_library(LTBL2 SHARED ${SOURCES})
 
 target_link_libraries(LTBL2 ${SFML_LIBRARIES})
+
+install(TARGETS LTBL2
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
+
+install(DIRECTORY "${SOURCE_PATH}/"
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h*")
