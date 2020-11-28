@@ -1,4 +1,4 @@
-#include <ltbl/quadtree/StaticQuadtree.h>
+#include "StaticQuadtree.h"
 
 #include <assert.h>
 
@@ -10,8 +10,8 @@ void StaticQuadtree::add(QuadtreeOccupant* oc) {
 	setQuadtree(oc);
 
 	// If the occupant fits in the root node
-	if (rectContains(_pRootNode->getRegion(), oc->getAABB()))
-		_pRootNode->add(oc);
+	if (rectContains(pRootNode->getRegion(), oc->getAABB()))
+		pRootNode->add(oc);
 	else
-		_outsideRoot.insert(oc);
+		outsideRoot.insert(oc);
 }

@@ -1,26 +1,26 @@
-#include <ltbl/quadtree/QuadtreeOccupant.h>
+#include "QuadtreeOccupant.h"
 
-#include <ltbl/quadtree/QuadtreeNode.h>
+#include "QuadtreeNode.h"
 
-#include <ltbl/quadtree/Quadtree.h>
+#include "Quadtree.h"
 
 #include <assert.h>
 
 using namespace ltbl;
 
 void QuadtreeOccupant::quadtreeUpdate() {
-	if (_pQuadtreeNode != nullptr)
-		_pQuadtreeNode->update(this);
+	if (pQuadtreeNode != nullptr)
+		pQuadtreeNode->update(this);
 	else {
-		_pQuadtree->_outsideRoot.erase(this);
+		pQuadtree->outsideRoot.erase(this);
 
-		_pQuadtree->add(this);
+		pQuadtree->add(this);
 	}
 }
 
 void QuadtreeOccupant::quadtreeRemove() {
-	if (_pQuadtreeNode != nullptr)
-		_pQuadtreeNode->remove(this);
+	if (pQuadtreeNode != nullptr)
+		pQuadtreeNode->remove(this);
 	else
-		_pQuadtree->_outsideRoot.erase(this);
+		pQuadtree->outsideRoot.erase(this);
 }

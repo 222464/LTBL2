@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ltbl/quadtree/QuadtreeOccupant.h>
+#include "QuadtreeOccupant.h"
 
 #include <memory>
 #include <array>
@@ -9,20 +9,20 @@
 namespace ltbl {
 	class QuadtreeNode : public sf::NonCopyable {
 	private:
-		QuadtreeNode* _pParent;
-		class Quadtree* _pQuadtree;
+		QuadtreeNode* pParent;
+		class Quadtree* pQuadtree;
 
-		bool _hasChildren;
+		bool hasChildren;
 
-		std::array<std::unique_ptr<QuadtreeNode>, 4> _children;
+		std::array<std::unique_ptr<QuadtreeNode>, 4> children;
 
-		std::unordered_set<QuadtreeOccupant*> _occupants;
+		std::unordered_set<QuadtreeOccupant*> occupants;
 
-		sf::FloatRect _region;
+		sf::FloatRect region;
 
-		unsigned _level;
+		unsigned level;
 
-		unsigned _numOccupantsBelow;
+		unsigned numOccupantsBelow;
 
 		void getPossibleOccupantPosition(QuadtreeOccupant* oc, sf::Vector2i &point);
 
@@ -33,9 +33,9 @@ namespace ltbl {
 
 		void destroyChildren() {
 			for (int i = 0; i < 4; i++)
-				_children[i].reset();
+				children[i].reset();
 
-			_hasChildren = false;
+			hasChildren = false;
 		}
 
 		void getOccupants(std::unordered_set<QuadtreeOccupant*> &occupants);
@@ -51,7 +51,7 @@ namespace ltbl {
 
 	public:
 		QuadtreeNode()
-			: _hasChildren(false), _numOccupantsBelow(0)
+			: hasChildren(false), numOccupantsBelow(0)
 		{}
 
 		QuadtreeNode(const sf::FloatRect &region, int level, QuadtreeNode* pParent, class Quadtree* pQuadtree);
@@ -60,20 +60,20 @@ namespace ltbl {
 		void create(const sf::FloatRect &region, int level, QuadtreeNode* pParent, class Quadtree* pQuadtree);
 
 		class Quadtree* getTree() const {
-			return _pQuadtree;
+			return pQuadtree;
 		}
 
 		void add(QuadtreeOccupant* oc);
 
 		const sf::FloatRect &getRegion() const {
-			return _region;
+			return region;
 		}
 
 		void getAllOccupantsBelow(std::vector<QuadtreeOccupant*> &occupants);
 		void getAllOccupantsBelow(std::unordered_set<QuadtreeOccupant*> &occupants);
 
 		int getNumOccupantsBelow() const {
-			return _numOccupantsBelow;
+			return numOccupantsBelow;
 		}
 
 		void pruneDeadReferences();

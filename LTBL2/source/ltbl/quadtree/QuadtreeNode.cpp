@@ -1,55 +1,55 @@
-#include <ltbl/quadtree/QuadtreeNode.h>
+#include "QuadtreeNode.h"
 
-#include <ltbl/quadtree/Quadtree.h>
+#include "Quadtree.h"
 
 #include <assert.h>
 
 using namespace ltbl;
 
 QuadtreeNode::QuadtreeNode(const sf::FloatRect &region, int level, QuadtreeNode* pParent, Quadtree* pQuadtree)
-:  _pParent(pParent), _pQuadtree(pQuadtree), _hasChildren(false),  _region(region), _level(level),
-_numOccupantsBelow(0)
+:  pParent(pParent), pQuadtree(pQuadtree), hasChildren(false),  region(region), level(level),
+numOccupantsBelow(0)
 {}
 
 void QuadtreeNode::create(const sf::FloatRect &region, int level, QuadtreeNode* pParent, Quadtree* pQuadtree) {
-	_hasChildren = false;
+	hasChildren = false;
 
-	_region = region;
-	_level = level;
-	_pParent = pParent;
-	_pQuadtree = pQuadtree;
+	this->region = region;
+	this->level = level;
+	this->pParent = pParent;
+	this->pQuadtree = pQuadtree;
 }
 
 void QuadtreeNode::getPossibleOccupantPosition(QuadtreeOccupant* oc, sf::Vector2i &point) {
 	// Compare the center of the AABB of the occupant to that of this node to determine
 	// which child it may (possibly, not certainly) fit in
 	const sf::Vector2f &occupantCenter = rectCenter(oc->getAABB());
-	const sf::Vector2f &nodeRegionCenter = rectCenter(_region);
+	const sf::Vector2f &nodeRegionCenter = rectCenter(region);
 
 	point.x = occupantCenter.x > nodeRegionCenter.x ? 1 : 0;
 	point.y = occupantCenter.y > nodeRegionCenter.y ? 1 : 0;
 }
 
 void QuadtreeNode::addToThisLevel(QuadtreeOccupant* oc) {
-	oc->_pQuadtreeNode = this;
+	oc->pQuadtreeNode = this;
 
-	if (_occupants.find(oc) != _occupants.end())
+	if (occupants.find(oc) != occupants.end())
 		return;
 
-	_occupants.insert(oc);
+	occupants.insert(oc);
 }
 
 bool QuadtreeNode::addToChildren(QuadtreeOccupant* oc) {
-	assert(_hasChildren);
+	assert(hasChildren);
 
 	sf::Vector2i position;
 
 	getPossibleOccupantPosition(oc, position);
 
-	QuadtreeNode* pChild = _children[position.x + position.y * 2].get();
+	QuadtreeNode* pChild = children[position.x + position.y * 2].get();
 
 	// See if the occupant fits in the child at the selected position
-	if (rectContains(pChild->_region, oc->getAABB())) {
+	if (rectContains(pChild->region, oc->getAABB())) {
 		// Fits, so can add to the child and finish
 		pChild->add(oc);
 
@@ -60,13 +60,13 @@ bool QuadtreeNode::addToChildren(QuadtreeOccupant* oc) {
 }
 
 void QuadtreeNode::partition() {
-	assert(!_hasChildren);
+	assert(!hasChildren);
 
-	sf::Vector2f halfRegionDims = rectHalfDims(_region);
-	sf::Vector2f regionLowerBound = rectLowerBound(_region);
-	sf::Vector2f regionCenter = rectCenter(_region);
+	sf::Vector2f halfRegionDims = rectHalfDims(region);
+	sf::Vector2f regionLowerBound = rectLowerBound(region);
+	sf::Vector2f regionCenter = rectCenter(region);
 
-	int nextLowerLevel = _level - 1;
+	int nextLowerLevel = level - 1;
 
 	for (int x = 0; x < 2; x++)
 	for (int y = 0; y < 2; y++) {
@@ -79,16 +79,16 @@ void QuadtreeNode::partition() {
 		sf::Vector2f center = rectCenter(childAABB);
 		childAABB = rectFromBounds(center - newHalfDims, center + newHalfDims);
 
-		_children[x + y * 2].reset(new QuadtreeNode(childAABB, nextLowerLevel, this, _pQuadtree));
+		children[x + y * 2] = std::make_unique<QuadtreeNode>(childAABB, nextLowerLevel, this, pQuadtree);
 	}
 
-	_hasChildren = true;
+	hasChildren = true;
 }
 
 void QuadtreeNode::merge() {
-	if (_hasChildren) {
+	if (hasChildren) {
 		// Place all occupants at lower levels into this node
-		getOccupants(_occupants);
+		getOccupants(occupants);
 
 		destroyChildren();
 	}
@@ -106,19 +106,19 @@ void QuadtreeNode::getOccupants(std::unordered_set<QuadtreeOccupant*> &occupants
 		open.pop_back();
 
 		// Get occupants
-		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->_occupants.begin(); it != pCurrent->_occupants.end(); it++)
+		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->occupants.begin(); it != pCurrent->occupants.end(); it++)
 		if ((*it) != nullptr) {
 			// Assign new node
-			(*it)->_pQuadtreeNode = this;
+			(*it)->pQuadtreeNode = this;
 
 			// Add to this node
 			occupants.insert(*it);
 		}
 
 		// If the node has children, add them to the open list
-		if (pCurrent->_hasChildren)
+		if (pCurrent->hasChildren)
 		for (int i = 0; i < 4; i++)
-			open.push_back(pCurrent->_children[i].get());
+			open.push_back(pCurrent->children[i].get());
 	}
 }
 
@@ -134,19 +134,19 @@ void QuadtreeNode::removeForDeletion(std::unordered_set<QuadtreeOccupant*> &occu
 		open.pop_back();
 
 		// Get occupants
-		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->_occupants.begin(); it != pCurrent->_occupants.end(); it++)
+		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->occupants.begin(); it != pCurrent->occupants.end(); it++)
 		if ((*it) != nullptr) {
 			// Since will be deleted, remove the reference
-			(*it)->_pQuadtreeNode = nullptr;
+			(*it)->pQuadtreeNode = nullptr;
 
 			// Add to this node
 			occupants.insert(*it);
 		}
 
 		// If the node has children, add them to the open list
-		if (pCurrent->_hasChildren)
+		if (pCurrent->hasChildren)
 		for (int i = 0; i < 4; i++)
-			open.push_back(pCurrent->_children[i].get());
+			open.push_back(pCurrent->children[i].get());
 	}
 }
 
@@ -162,15 +162,15 @@ void QuadtreeNode::getAllOccupantsBelow(std::vector<QuadtreeOccupant*> &occupant
 		open.pop_back();
 
 		// Get occupants
-		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->_occupants.begin(); it != pCurrent->_occupants.end(); it++)
+		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->occupants.begin(); it != pCurrent->occupants.end(); it++)
 		if ((*it) != nullptr)
 			// Add to this node
 			occupants.push_back(*it);
 
 		// If the node has children, add them to the open list
-		if (pCurrent->_hasChildren)
+		if (pCurrent->hasChildren)
 		for (int i = 0; i < 4; i++)
-			open.push_back(pCurrent->_children[i].get());
+			open.push_back(pCurrent->children[i].get());
 	}
 }
 
@@ -186,15 +186,15 @@ void QuadtreeNode::getAllOccupantsBelow(std::unordered_set<QuadtreeOccupant*> &o
 		open.pop_back();
 
 		// Get occupants
-		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->_occupants.begin(); it != pCurrent->_occupants.end(); it++)
+		for (std::unordered_set<QuadtreeOccupant*>::iterator it = pCurrent->occupants.begin(); it != pCurrent->occupants.end(); it++)
 		if ((*it) == nullptr)
 			// Add to this node
 			occupants.insert(*it);
 
 		// If the node has children, add them to the open list
-		if (pCurrent->_hasChildren)
+		if (pCurrent->hasChildren)
 		for (int i = 0; i < 4; i++)
-			open.push_back(pCurrent->_children[i].get());
+			open.push_back(pCurrent->children[i].get());
 	}
 }
 
@@ -202,43 +202,43 @@ void QuadtreeNode::update(QuadtreeOccupant* oc) {
 	if (oc == nullptr)
 		return;
 
-	if (!_occupants.empty())
+	if (!occupants.empty())
 		// Remove, may be re-added to this node later
-		_occupants.erase(oc);
+		occupants.erase(oc);
 
 	// Propogate upwards, looking for a node that has room (the current one may still have room)
 	QuadtreeNode* pNode = this;
 
 	while (pNode != nullptr) {
-		pNode->_numOccupantsBelow--;
+		pNode->numOccupantsBelow--;
 
 		// If has room for 1 more, found a spot
-		if (rectContains(pNode->_region, oc->getAABB()))
+		if (rectContains(pNode->region, oc->getAABB()))
 			break;
 
-		pNode = pNode->_pParent;
+		pNode = pNode->pParent;
 	}
 
 	// If no node that could contain the occupant was found, add to outside root set
 	if (pNode == nullptr) {
-		assert(_pQuadtree != nullptr);
+		assert(pQuadtree != nullptr);
 
-		if (_pQuadtree->_outsideRoot.find(oc) != _pQuadtree->_outsideRoot.end())
+		if (pQuadtree->outsideRoot.find(oc) != pQuadtree->outsideRoot.end())
 			return;
 
-		_pQuadtree->_outsideRoot.insert(oc);
+		pQuadtree->outsideRoot.insert(oc);
 
-		oc->_pQuadtreeNode = nullptr;
+		oc->pQuadtreeNode = nullptr;
 	}
 	else // Add to the selected node
 		pNode->add(oc);
 }
 
 void QuadtreeNode::remove(QuadtreeOccupant* oc) {
-	assert(!_occupants.empty());
+	assert(!occupants.empty());
 
 	// Remove from node
-	_occupants.erase(oc);
+	occupants.erase(oc);
 
 	if (oc == nullptr)
 		return;
@@ -247,31 +247,31 @@ void QuadtreeNode::remove(QuadtreeOccupant* oc) {
 	QuadtreeNode* pNode = this;
 
 	while (pNode != nullptr) {
-		pNode->_numOccupantsBelow--;
+		pNode->numOccupantsBelow--;
 
-		if (pNode->_numOccupantsBelow >= _pQuadtree->_minNumNodeOccupants) {
+		if (pNode->numOccupantsBelow >= pQuadtree->minNumNodeOccupants) {
 			pNode->merge();
 
 			break;
 		}
 
-		pNode = pNode->_pParent;
+		pNode = pNode->pParent;
 	}
 }
 
 void QuadtreeNode::add(QuadtreeOccupant* oc) {
 	assert(oc != nullptr);
 
-	_numOccupantsBelow++;
+	numOccupantsBelow++;
 
 	// See if the occupant fits into any children (if there are any)
-	if (_hasChildren) {
+	if (hasChildren) {
 		if (addToChildren(oc))
 			return; // Fit, can stop
 	}
 	else {
 		// Check if we need a new partition
-		if (_occupants.size() >= _pQuadtree->_maxNumNodeOccupants && _level < _pQuadtree->_maxLevels) {
+		if (occupants.size() >= pQuadtree->maxNumNodeOccupants && level < pQuadtree->maxLevels) {
 			partition();
 
 			if (addToChildren(oc))
@@ -284,14 +284,14 @@ void QuadtreeNode::add(QuadtreeOccupant* oc) {
 }
 
 void QuadtreeNode::pruneDeadReferences() {
-	for (std::unordered_set<QuadtreeOccupant*>::iterator it = _occupants.begin(); it != _occupants.end();) {
+	for (std::unordered_set<QuadtreeOccupant*>::iterator it = occupants.begin(); it != occupants.end();) {
 		if ((*it) == nullptr)
 			it++;
 		else
-			it = _occupants.erase(it);
+			it = occupants.erase(it);
 	}
 
-	if (_hasChildren)
+	if (hasChildren)
 	for (int i = 0; i < 4; i++)
-		_children[i]->pruneDeadReferences();
+		children[i]->pruneDeadReferences();
 }

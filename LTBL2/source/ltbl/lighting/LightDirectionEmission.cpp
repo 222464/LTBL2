@@ -1,8 +1,8 @@
-#include <ltbl/lighting/LightDirectionEmission.h>
+#include "LightDirectionEmission.h"
 
-#include <ltbl/lighting/LightShape.h>
+#include "LightShape.h"
 
-#include <ltbl/lighting/LightSystem.h>
+#include "LightSystem.h"
 
 #include <assert.h>
 
@@ -24,7 +24,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 		std::vector<sf::Vector2f> innerBoundaryVectors;
 		std::vector<sf::Vector2f> outerBoundaryVectors;
 
-		LightSystem::getPenumbrasDirection(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerBoundaryIndices, outerBoundaryVectors, pLightShape->_shape, _castDirection, _sourceRadius, _sourceDistance);
+		LightSystem::getPenumbrasDirection(penumbras, innerBoundaryIndices, innerBoundaryVectors, outerBoundaryIndices, outerBoundaryVectors, pLightShape->shape, castDirection, sourceRadius, sourceDistance);
 
 		if (innerBoundaryIndices.size() != 2 || outerBoundaryIndices.size() != 2)
 			continue;
@@ -37,17 +37,17 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 		float maxDist = 0.0f;
 
-		for (unsigned j = 0; j < pLightShape->_shape.getPointCount(); j++)
-			maxDist = std::max(maxDist, vectorMagnitude(view.getCenter() - pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(j))));
+		for (unsigned j = 0; j < pLightShape->shape.getPointCount(); j++)
+			maxDist = std::max(maxDist, vectorMagnitude(view.getCenter() - pLightShape->shape.getTransform().transformPoint(pLightShape->shape.getPoint(j))));
 
 		float totalShadowExtension = shadowExtension + maxDist;
 
 		maskShape.setPointCount(4);
 
-		maskShape.setPoint(0, pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[0])));
-		maskShape.setPoint(1, pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[1])));
-		maskShape.setPoint(2, pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[1])) + vectorNormalize(innerBoundaryVectors[1]) * totalShadowExtension);
-		maskShape.setPoint(3, pLightShape->_shape.getTransform().transformPoint(pLightShape->_shape.getPoint(innerBoundaryIndices[0])) + vectorNormalize(innerBoundaryVectors[0]) * totalShadowExtension);
+		maskShape.setPoint(0, pLightShape->shape.getTransform().transformPoint(pLightShape->shape.getPoint(innerBoundaryIndices[0])));
+		maskShape.setPoint(1, pLightShape->shape.getTransform().transformPoint(pLightShape->shape.getPoint(innerBoundaryIndices[1])));
+		maskShape.setPoint(2, pLightShape->shape.getTransform().transformPoint(pLightShape->shape.getPoint(innerBoundaryIndices[1])) + vectorNormalize(innerBoundaryVectors[1]) * totalShadowExtension);
+		maskShape.setPoint(3, pLightShape->shape.getTransform().transformPoint(pLightShape->shape.getPoint(innerBoundaryIndices[0])) + vectorNormalize(innerBoundaryVectors[0]) * totalShadowExtension);
 
 		maskShape.setFillColor(sf::Color::Black);
 
@@ -66,12 +66,12 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 			// Unmask with penumbras
 			for (unsigned j = 0; j < penumbras.size(); j++) {
-				unshadowShader.setParameter("lightBrightness", penumbras[j]._lightBrightness);
-				unshadowShader.setParameter("darkBrightness", penumbras[j]._darkBrightness);
+				unshadowShader.setUniform("lightBrightness", penumbras[j].lightBrightness);
+				unshadowShader.setUniform("darkBrightness", penumbras[j].darkBrightness);
 
-				vertexArray[0].position = penumbras[j]._source;
-				vertexArray[1].position = penumbras[j]._source + vectorNormalize(penumbras[j]._lightEdge) * totalShadowExtension;
-				vertexArray[2].position = penumbras[j]._source + vectorNormalize(penumbras[j]._darkEdge) * totalShadowExtension;
+				vertexArray[0].position = penumbras[j].source;
+				vertexArray[1].position = penumbras[j].source + vectorNormalize(penumbras[j].lightEdge) * totalShadowExtension;
+				vertexArray[2].position = penumbras[j].source + vectorNormalize(penumbras[j].darkEdge) * totalShadowExtension;
 
 				vertexArray[0].texCoords = sf::Vector2f(0.0f, 1.0f);
 				vertexArray[1].texCoords = sf::Vector2f(1.0f, 0.0f);
@@ -101,10 +101,10 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 	for (unsigned i = 0; i < shapes.size(); i++) {
 		LightShape* pLightShape = static_cast<LightShape*>(shapes[i]);
 
-		if (pLightShape->_renderLightOverShape) {
-			pLightShape->_shape.setFillColor(sf::Color::White);
+		if (pLightShape->renderLightOverShape) {
+			pLightShape->shape.setFillColor(sf::Color::White);
 
-			lightTempTexture.draw(pLightShape->_shape);
+			lightTempTexture.draw(pLightShape->shape);
 		}
 	}
 
@@ -114,7 +114,7 @@ void LightDirectionEmission::render(const sf::View &view, sf::RenderTexture &lig
 
 	lightTempTexture.setView(lightTempTexture.getDefaultView());
 
-	lightTempTexture.draw(_emissionSprite, lightRenderStates);
+	lightTempTexture.draw(emissionSprite, lightRenderStates);
 
 	lightTempTexture.display();
 }

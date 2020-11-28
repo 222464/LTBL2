@@ -3,8 +3,8 @@
 #include <SFML/Graphics.hpp>
 
 namespace ltbl {
-	const float _pi = 3.14159265f;
-	const float _radToDeg = 180.0f / _pi;
+	const float pi = 3.14159265f;
+	const float radToDeg = 180.0f / pi;
 
 	sf::Vector2f rectCenter(const sf::FloatRect &rect);
 	bool rectContains(const sf::FloatRect &rect, const sf::FloatRect &other);

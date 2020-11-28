@@ -1,5 +1,3 @@
-# ![LTBL2 Logo](http://i1218.photobucket.com/albums/dd401/222464/ltbllogosmall.png)
-
 Let There Be Light 2
 =======
 
@@ -13,22 +11,6 @@ LTBL2 relies only on SFML.
 To get SFML, choose a package from here: [http://www.sfml-dev.org/download/sfml/2.2/](http://www.sfml-dev.org/download/sfml/2.2/)
 
 LTBL2 uses CMake as the build system. You can get CMake here: [http://www.cmake.org/download/](http://www.cmake.org/download/)
-
-Set CMake's source code directory to the LTBL2 root directory (the one that contains the /source folder as well as a CMakeLists.txt).
-
-Set CMake's build directory to the same directory as in the previous step. Optionally, you can also set it to a folder of your choice, but this may make browse the source more difficult if you are using Visual Studio.
-
-Then press configure, and choose your compiler.
-
-It will likely error. If this happens, no fear, there is a fix!
-
-You can specify the paths where CMake looks manually. They will appear in red if they need to be set in the CMake GUI.
-
-SFML is a bit tricky, you have to add a custom variable entry for a variable called SFML_ROOT and set it to the SFML root directory.
-
-When eventually the configuration does not result in errors you can hit generate. This will generate files necessary for your compiler.
-
-You should then be able to compile and execute the program. If you are using Visual Studio, you may have to set your startup project to the ERL project, and you may have to add the source files to the project.
 
 Quick Start
 -----------
@@ -84,11 +66,11 @@ Below is an example for creating one point light and one directional light:
 ```cpp
 std::shared_ptr<ltbl::LightPointEmission> light = std::make_shared<ltbl::LightPointEmission>();
 
-light->_emissionSprite.setOrigin(<some_origin>);
-light->_emissionSprite.setTexture(<mask_texture>);
-light->_emissionSprite.setColor(<color>);
-light->_emissionSprite.setPosition(<position_of_light>);
-light->_localCastCenter = sf::Vector2f(0.0f, 0.0f); // This is where the shadows emanate from relative to the sprite
+light->emissionSprite.setOrigin(<some_origin>);
+light->emissionSprite.setTexture(<mask_texture>);
+light->emissionSprite.setColor(<color>);
+light->emissionSprite.setPosition(<position_of_light>);
+light->localCastCenter = sf::Vector2f(0.0f, 0.0f); // This is where the shadows emanate from relative to the sprite
 
 ls.addLight(light);
 
@@ -96,8 +78,8 @@ ls.addLight(light);
 
 std::shared_ptr<ltbl::LightDirectionEmission> light = std::make_shared<ltbl::LightDirectionEmission>();
 
-light->_emissionSprite.setTexture(<mask_texture>);
-light->_castDirection = sf::Vector2f(<cast_direction>);
+light->emissionSprite.setTexture(<mask_texture>);
+light->castDirection = sf::Vector2f(<cast_direction>);
 
 ls.addLight(light);
 ```
@@ -107,12 +89,12 @@ To create occluders, you must create a ltbl::LightShape object, and set the SFML
 ```cpp
 std::shared_ptr<ltbl::LightShape> lightShape = std::make_shared<ltbl::LightShape>();
 
-lightShape->_shape.setPointCount(<number_of_points>);
+lightShape->shape.setPointCount(<number_of_points>);
 
 for (int j = 0; j < fixedPoints.size(); j++)
-	lightShape->_shape.setPoint(j, <point>);
+	lightShape->shape.setPoint(j, <point>);
 
-lightShape->_shape.setPosition(<position>);
+lightShape->shape.setPosition(<position>);
 
 ls.addShape(lightShape);
 ```
@@ -123,7 +105,7 @@ License
 -----------
 
 LTBL2
-Copyright (C) 2014-2015 Eric Laukien
+Copyright (C) 2014-2020 Eric Laukien
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages

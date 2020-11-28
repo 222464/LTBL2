@@ -3,7 +3,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <ltbl/Math.h>
+#include "../Math.h"
 
 #include <memory>
 #include <array>
@@ -12,12 +12,12 @@
 namespace ltbl {
 	class QuadtreeOccupant {
 	private:
-		class QuadtreeNode* _pQuadtreeNode;
-		class Quadtree* _pQuadtree;
+		class QuadtreeNode* pQuadtreeNode;
+		class Quadtree* pQuadtree;
 
 	public:
 		QuadtreeOccupant()
-			: _pQuadtreeNode(nullptr), _pQuadtree(nullptr)
+			: pQuadtreeNode(nullptr), pQuadtree(nullptr)
 		{}
 
 		void quadtreeUpdate();

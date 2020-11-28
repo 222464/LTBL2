@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ltbl/quadtree/QuadtreeNode.h>
+#include "QuadtreeNode.h"
 
 #include <memory>
 
@@ -14,9 +14,9 @@ namespace ltbl {
 	// Base class for dynamic and static Quadtree types
 	class Quadtree {
 	protected:
-		std::unordered_set<QuadtreeOccupant*> _outsideRoot;
+		std::unordered_set<QuadtreeOccupant*> outsideRoot;
 
-		std::unique_ptr<QuadtreeNode> _pRootNode;
+		std::unique_ptr<QuadtreeNode> pRootNode;
 
 		// Called whenever something is removed, an action can be defined by derived classes
 		// Defaults to doing nothing
@@ -27,11 +27,11 @@ namespace ltbl {
 		void recursiveCopy(QuadtreeNode* pThisNode, QuadtreeNode* pOtherNode, QuadtreeNode* pThisParent);
 
 	public:
-		size_t _minNumNodeOccupants;
-		size_t _maxNumNodeOccupants;
-		size_t _maxLevels;
+		size_t minNumNodeOccupants;
+		size_t maxNumNodeOccupants;
+		size_t maxLevels;
 
-		float _oversizeMultiplier;
+		float oversizeMultiplier;
 
 		Quadtree();
 		Quadtree(const Quadtree &other) {

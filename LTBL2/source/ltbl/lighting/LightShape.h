@@ -1,20 +1,20 @@
 #pragma once
 
-#include <ltbl/quadtree/QuadtreeOccupant.h>
+#include "../quadtree/QuadtreeOccupant.h"
 
 namespace ltbl {
 	class LightShape : public QuadtreeOccupant {
 	public:
-		bool _renderLightOverShape;
+		bool renderLightOverShape;
 
-		sf::ConvexShape _shape;
+		sf::ConvexShape shape;
 
 		LightShape()
-			: _renderLightOverShape(true)
+			: renderLightOverShape(true)
 		{}
 
 		sf::FloatRect getAABB() const {
-			return _shape.getGlobalBounds();
+			return shape.getGlobalBounds();
 		}
 	};
 }
